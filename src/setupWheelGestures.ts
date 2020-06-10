@@ -11,9 +11,11 @@ export function setupWheelGestures(embla: EmblaCarousel, {} = {}) {
   let cleanupFn = () => {}
 
   function initWheelGestures() {
+    // @ts-expect-error
     embla.on('reInit', reInit)
     embla.on('destroy', cleanup)
 
+    // @ts-expect-error
     const engine = embla.dangerouslyGetEngine()
     const targetNode = embla.containerNode().parentNode as Element
 
@@ -48,6 +50,7 @@ export function setupWheelGestures(embla: EmblaCarousel, {} = {}) {
     function cleanup() {
       unobserveTargetNode()
       offWheel()
+      // @ts-expect-error
       embla.off('reInit', reInit)
       embla.off('destroy', cleanup)
     }
