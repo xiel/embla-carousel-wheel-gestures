@@ -53,7 +53,7 @@
     "wheel-gestures": "^2.2.0"
   },
   "devDependencies": {
-    "embla-carousel": "git+https://github.com/davidcetinkaya/embla-carousel.git#6e508c2c7573836133f8d8208b9b653b2d62ac26",
+    "embla-carousel": "^2.9.1",
     "@testing-library/react": "^10.0.2",
     "@types/jest": "^25.2.1",
     "bundlewatch": "^0.2.6",
