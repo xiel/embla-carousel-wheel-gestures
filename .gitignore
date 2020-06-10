@@ -1,0 +1,10 @@
+.idea
+.DS_Store
+node_modules
+lerna-debug.log
+dist
+build
+.rpt2_cache
+yarn-error.log
+react-app-env.d.ts
+coverage

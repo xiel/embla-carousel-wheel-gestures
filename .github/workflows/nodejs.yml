@@ -1,0 +1,40 @@
+name: Node
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    env:
+      CI: true
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      BUNDLEWATCH_GITHUB_TOKEN: ${{ secrets.BUNDLEWATCH_GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: yarn install, build, and test
+        run: |
+          yarn
+          yarn test
+          yarn lint
+          yarn build
+      - name: docs (install, build, and test)
+        run: |
+          cd docs
+          yarn
+          yarn lint
+          yarn build
+      - name: bundlewatch
+        run: yarn run bundlewatch
+      - name: release
+        run: |
+          yarn semantic-release
