@@ -27,12 +27,6 @@ jobs:
           yarn test
           yarn lint
           yarn build
-      - name: docs (install, build, and test)
-        run: |
-          cd docs
-          yarn
-          yarn lint
-          yarn build
       - name: bundlewatch
         run: yarn run bundlewatch
       - name: release
