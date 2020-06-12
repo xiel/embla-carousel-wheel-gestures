@@ -3058,10 +3058,10 @@ electron-to-chromium@^1.3.413:
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.466.tgz#89f716db3afc4bb482ea2aaaa16c4808f89f762a"
   integrity sha512-eieqkoM2hCkZZRhETKyCouMziDV3l4XEKHRLuzcHG+HV+P7PeODU/z9HAmBgMQkzvHg2DoyQhfIDmmeguLZT/Q==
 
-embla-carousel@^2.9.1:
-  version "2.9.1"
-  resolved "https://registry.yarnpkg.com/embla-carousel/-/embla-carousel-2.9.1.tgz#be68ac01b34779a437d7ab902a368d1913401a35"
-  integrity sha512-aAyCpbPwcR+NssMJ5tfYUMEavCOhSUfk9k/g9Qd98cAZ1d/8hju0cplEs85DtfwU6Bd+Oki1le/zMH53IVOs9w==
+embla-carousel@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/embla-carousel/-/embla-carousel-3.0.0.tgz#f57e1be6436076edfb5e2b219dd77ad6d4f77155"
+  integrity sha512-ULNXzPPHJtzVyzaV6oFvv8qKLU1idwwQ1frPm5+WIcNjguDhCh6BqLEcSs5lZktOZ04vUtkqL6dgASCLamHGew==
 
 emoji-regex@^7.0.1, emoji-regex@^7.0.2:
   version "7.0.3"
