@@ -20,6 +20,8 @@ export function setupWheelGestures(embla: EmblaCarousel, {} = {}) {
     const wheelGestures = WheelGestures({
       preventWheelAction: engine.options.axis,
     })
+
+    // test
     const unobserveTargetNode = wheelGestures.observe(targetNode)
     const offWheel = wheelGestures.on('wheel', handleWheel)
     let isStarted = false
