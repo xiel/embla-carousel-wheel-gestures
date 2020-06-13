@@ -18,7 +18,7 @@ const dots = wrap.querySelector('.embla__dots')
 const radioButtons = document.querySelectorAll('.radio__input')
 const radioButtonsArray = [].slice.call(radioButtons)
 const embla = EmblaCarousel(viewPort as HTMLElement, {
-          loop: false,
+  loop: false,
 })
 
 const dotsArray = generateDotBtns(dots, embla)
