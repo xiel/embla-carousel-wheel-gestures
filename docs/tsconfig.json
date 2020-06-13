@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "lib": [
+      "dom",
+      "DOM.Iterable",
+      "ES6"
+    ],
+    "allowJs": true,
+    "rootDir": "./src",
+    "noEmit": true,
+    "esModuleInterop": true
+  }
+}

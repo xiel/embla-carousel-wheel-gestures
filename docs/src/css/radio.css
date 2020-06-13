@@ -1,0 +1,9 @@
+.radio {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 5rem;
+}
+
+.radio__label {
+  margin-left: 2rem;
+}

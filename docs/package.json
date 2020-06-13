@@ -1,0 +1,23 @@
+{
+  "name": "embla-carousel-wheel-gestures-demo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Embla Carousel - Options demonstration.",
+  "main": "index.html",
+  "scripts": {
+    "start": "parcel index.html --open",
+    "build": "parcel build index.html",
+    "link-package": "cd ..; yarn unlink; yarn link; cd docs; yarn link embla-carousel-wheel-gestures"
+  },
+  "dependencies": {
+    "embla-carousel": "^3.0.0",
+    "embla-carousel-wheel-gestures": "^0.0.0-development"
+  },
+  "devDependencies": {
+    "@babel/core": "7.2.0",
+    "parcel-bundler": "^1.6.1",
+    "prettier": "^2.0.5",
+    "typescript": "^3.9.5"
+  },
+  "keywords": []
+}
