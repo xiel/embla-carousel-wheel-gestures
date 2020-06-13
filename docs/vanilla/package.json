@@ -7,7 +7,7 @@
   "scripts": {
     "start": "parcel index.html --open",
     "build": "parcel build index.html",
-    "link-local-package": "cd ..; yarn unlink; yarn link; cd docs; yarn link embla-carousel-wheel-gestures"
+    "link-local-package": "cd ../../; yarn unlink; yarn link; cd -; yarn link embla-carousel-wheel-gestures"
   },
   "dependencies": {
     "embla-carousel": "^3.0.0",
