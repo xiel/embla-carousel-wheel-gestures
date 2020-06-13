@@ -1,7 +1,9 @@
 import EmblaCarousel from 'embla-carousel'
 import WheelGestures, { projection, WheelEventState } from 'wheel-gestures'
 
-export function setupWheelGestures(embla: EmblaCarousel, {} = {}) {
+type TEmblaCarousel = Pick<EmblaCarousel, 'containerNode' | 'on' | 'off' | 'dangerouslyGetEngine'>
+
+export function setupWheelGestures(embla: TEmblaCarousel) {
   if (embla.containerNode()) {
     initWheelGestures()
   } else {
@@ -21,7 +23,6 @@ export function setupWheelGestures(embla: EmblaCarousel, {} = {}) {
       preventWheelAction: engine.options.axis,
     })
 
-    // test
     const unobserveTargetNode = wheelGestures.observe(targetNode)
     const offWheel = wheelGestures.on('wheel', handleWheel)
     let isStarted = false
