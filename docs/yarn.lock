@@ -2069,9 +2069,17 @@ elliptic@^6.0.0, elliptic@^6.5.2:
     minimalistic-assert "^1.0.0"
     minimalistic-crypto-utils "^1.0.0"
 
-"embla-carousel@git+https://github.com/davidcetinkaya/embla-carousel.git#66941f0c6185cd442398155d4d72977437d9b351":
-  version "2.9.1"
-  resolved "git+https://github.com/davidcetinkaya/embla-carousel.git#66941f0c6185cd442398155d4d72977437d9b351"
+embla-carousel-wheel-gestures@^0.0.0-development:
+  version "0.0.0-development"
+  resolved "https://registry.yarnpkg.com/embla-carousel-wheel-gestures/-/embla-carousel-wheel-gestures-0.0.0-development.tgz#38167477b920d9f91efe8f39ccd55cc29ebded12"
+  integrity sha512-ZMhOeQ5WTzi5PPGBx8K7oSyWzkBT3KytaXj3dZC27fMK0LC7OuFCbGiUzSA8Pnr8jryk/ZB///i7Mqi4PdaHoQ==
+  dependencies:
+    wheel-gestures "^2.2.0"
+
+embla-carousel@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/embla-carousel/-/embla-carousel-3.0.0.tgz#f57e1be6436076edfb5e2b219dd77ad6d4f77155"
+  integrity sha512-ULNXzPPHJtzVyzaV6oFvv8qKLU1idwwQ1frPm5+WIcNjguDhCh6BqLEcSs5lZktOZ04vUtkqL6dgASCLamHGew==
 
 emoji-regex@^7.0.1:
   version "7.0.3"
