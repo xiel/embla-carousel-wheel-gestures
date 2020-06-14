@@ -1,12 +1,12 @@
 {
-  "name": "embla-carousel-wheel-gestures-demo",
+  "name": "vanilla-demo",
   "private": true,
   "version": "1.0.0",
   "description": "Embla Carousel - Options demonstration.",
-  "main": "index.html",
+  "main": "vanilla.html",
   "scripts": {
-    "start": "parcel index.html --open",
-    "build": "parcel build index.html",
+    "start": "parcel vanilla.html --open",
+    "build": "parcel build vanilla.html",
     "link-local-package": "cd ../../; yarn unlink; yarn link; cd -; yarn link embla-carousel-wheel-gestures"
   },
   "dependencies": {

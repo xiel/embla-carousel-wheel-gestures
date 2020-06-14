@@ -1,12 +1,12 @@
 {
-  "name": "embla-carousel-wheel-gestures-react-demo",
+  "name": "react-demo",
   "private": true,
   "version": "1.0.0",
   "description": "Embla Carousel - Options demonstration.",
-  "main": "index.html",
+  "main": "react.html",
   "scripts": {
-    "start": "parcel index.html --open",
-    "build": "yarn; parcel build index.html",
+    "start": "parcel react.html --open",
+    "build": "yarn; parcel build react.html",
     "link-local-package": "cd ../../; yarn unlink; yarn link; cd -; yarn link embla-carousel-wheel-gestures"
   },
   "dependencies": {
