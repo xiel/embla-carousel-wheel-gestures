@@ -1,0 +1,89 @@
+{
+  "name": "embla-carousel-wheel-gestures",
+  "private": true,
+  "version": "0.0.0-development",
+  "description": "wheel gestures for embla carousel",
+  "main": "dist/index.js",
+  "module": "dist/embla-carousel-wheel-gestures.esm.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "tsdx test",
+    "lint": "tsdx lint src docs",
+    "prepare": "tsdx build",
+    "semantic-release": "semantic-release"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js}": "tsdx lint --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xiel/embla-carousel-wheel-gestures.git"
+  },
+  "keywords": [
+    "wheel",
+    "scroll",
+    "mouse",
+    "trackpad",
+    "gesture",
+    "events"
+  ],
+  "author": "Felix Leupold <felix@xiel.de>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xiel/embla-carousel-wheel-gestures/issues"
+  },
+  "homepage": "https://github.com/xiel/embla-carousel-wheel-gestures#readme",
+  "peerDependencies": {
+    "embla-carousel": "^3.0.0"
+  },
+  "dependencies": {
+    "wheel-gestures": "^2.2.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^10.0.2",
+    "@types/jest": "^26.0.0",
+    "bundlewatch": "^0.2.6",
+    "embla-carousel": "^3.0.0",
+    "eslint-plugin-import": "^2.19.1",
+    "eslint-plugin-react": "^7.14.3",
+    "eslint-plugin-react-app": "^6.2.2",
+    "eslint-plugin-simple-import-sort": "^5.0.0",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.1.6",
+    "semantic-release": "^17.0.4",
+    "tsdx": "^0.13.2",
+    "tslib": "^2.0.0",
+    "typescript": "^3.9.1-rc"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js,jx,tsx,ts}",
+      "!**/node_modules/**",
+      "!**/dist/**",
+      "!**/build/**",
+      "!**/*.config.{js,jx,tsx,ts}"
+    ]
+  },
+  "bundlewatch": {
+    "files": [
+      {
+        "path": "dist/*.js",
+        "maxSize": "10kB"
+      }
+    ]
+  }
+}

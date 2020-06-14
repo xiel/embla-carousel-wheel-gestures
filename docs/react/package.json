@@ -6,7 +6,7 @@
   "main": "index.html",
   "scripts": {
     "start": "parcel index.html --open",
-    "build": "parcel build index.html",
+    "build": "yarn; parcel build index.html",
     "link-local-package": "cd ../../; yarn unlink; yarn link; cd -; yarn link embla-carousel-wheel-gestures"
   },
   "dependencies": {
@@ -20,7 +20,6 @@
   "devDependencies": {
     "@babel/core": "7.2.0",
     "parcel-bundler": "^1.6.1",
-    "prettier": "^2.0.5",
     "typescript": "^3.9.5"
   },
   "keywords": []

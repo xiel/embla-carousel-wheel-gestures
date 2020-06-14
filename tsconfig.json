@@ -1,5 +1,4 @@
 {
-  "include": ["src", "types"],
   "compilerOptions": {
     "target": "es5",
     "lib": ["dom", "esnext"],
@@ -15,7 +14,6 @@
     "jsx": "react",
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node",
-    "rootDir": "./src"
+    "moduleResolution": "node"
   }
 }
