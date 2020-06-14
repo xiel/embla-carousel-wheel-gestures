@@ -5,7 +5,6 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import EmblaCarousel from './EmblaCarousel'
-import Footer from './Footer'
 
 const App = () => {
   return (
@@ -19,7 +18,6 @@ const App = () => {
           <div />
         </EmblaCarousel>
       </div>
-      <Footer />
     </>
   )
 }
