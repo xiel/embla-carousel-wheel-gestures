@@ -17,7 +17,7 @@
     "start": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test",
-    "lint": "tsdx lint src docs",
+    "lint": "tsdx lint src",
     "prepare": "tsdx build",
     "semantic-release": "semantic-release"
   },
