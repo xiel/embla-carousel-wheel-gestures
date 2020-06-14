@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "embla-carousel": "^3.0.0",
-    "embla-carousel-wheel-gestures": "^0.0.0-development"
+    "embla-carousel-wheel-gestures": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "7.2.0",
