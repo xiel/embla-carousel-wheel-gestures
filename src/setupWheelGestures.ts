@@ -3,6 +3,8 @@ import WheelGestures, { projection, WheelEventState } from 'wheel-gestures'
 
 type TEmblaCarousel = Pick<EmblaCarousel, 'containerNode' | 'on' | 'off' | 'dangerouslyGetEngine'>
 
+console.log('local package')
+
 export function setupWheelGestures(embla: TEmblaCarousel) {
   if (embla.containerNode()) {
     initWheelGestures()
