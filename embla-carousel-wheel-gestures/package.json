@@ -1,7 +1,7 @@
 {
   "name": "embla-carousel-wheel-gestures",
   "private": false,
-  "version": "1.0.1",
+  "version": "0.0.9",
   "description": "wheel gestures for embla carousel",
   "main": "dist/index.js",
   "module": "dist/embla-carousel-wheel-gestures.esm.js",
@@ -19,8 +19,8 @@
     "test": "tsdx test",
     "lint": "tsdx lint src",
     "prepare": "tsdx build",
-    "prepublishOnly": "cp ../README.md README.md",
-    "semantic-release": "semantic-release"
+    "semantic-release": "semantic-release",
+    "prepublishOnly": "cp ../README.md README.md"
   },
   "husky": {
     "hooks": {
