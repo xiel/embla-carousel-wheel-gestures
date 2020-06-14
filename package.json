@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "yarn workspaces run build; rm -rf public; mkdir public; mv docs/react/dist public/react; mv docs/vanilla/dist public/vanilla"
+    "build": "yarn workspaces run build; yarn move",
+    "move": "rm -rf public; mkdir public; cp -R docs/react/dist/* public/; cp -R docs/vanilla/dist/* public/"
   },
   "description": "workspace for embla-carousel-wheel-gestures",
   "repository": "git@github.com:xiel/embla-carousel-wheel-gestures.git",
