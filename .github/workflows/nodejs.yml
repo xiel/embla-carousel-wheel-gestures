@@ -31,6 +31,3 @@ jobs:
         run: |
           cd embla-carousel-wheel-gestures
           yarn run bundlewatch
-      - name: release
-        run: |
-          yarn semantic-release
