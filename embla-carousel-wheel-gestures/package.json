@@ -82,7 +82,7 @@
     "files": [
       {
         "path": "dist/*.js",
-        "maxSize": "10kB"
+        "maxSize": "1.2kB"
       }
     ]
   }
