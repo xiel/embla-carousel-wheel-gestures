@@ -42,7 +42,7 @@ const embla = EmblaCarousel(emblaNode, options)
 // add support for wheen events
 setupWheelGestures(embla)
 ````
- 
+
 #### React
 
 ````js
@@ -51,9 +51,9 @@ import { setupWheelGestures } from 'embla-carousel-wheel-gestures'
 
 const EmblaCarouselComponent = ({ children }) => {
   const [EmblaCarouselReact, embla] = useEmblaCarousel({ loop: false })
-  
+
   useEffect(() => embla && setupWheelGestures(embla), [embla])
-  
+
   // ...
 }
 ````
