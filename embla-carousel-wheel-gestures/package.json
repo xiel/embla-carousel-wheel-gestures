@@ -1,5 +1,6 @@
 {
   "name": "embla-carousel-wheel-gestures",
+  "private": false,
   "version": "1.0.0",
   "description": "wheel gestures for embla carousel",
   "main": "dist/index.js",
