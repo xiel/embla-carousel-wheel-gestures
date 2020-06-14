@@ -22,5 +22,17 @@ const App = () => {
   )
 }
 
-const rootElement = document.getElementById('root')
-ReactDOM.render(<App />, rootElement)
+const init = function() {
+  let rootElement = document.getElementById('root')
+  if (!rootElement) {
+    rootElement = document.createElement('div')
+    document.body.append(rootElement)
+  }
+  ReactDOM.render(<App />, rootElement)
+}
+
+if (document.readyState === 'complete') {
+  init()
+} else {
+  document.addEventListener('DOMContentLoaded', init)
+}
