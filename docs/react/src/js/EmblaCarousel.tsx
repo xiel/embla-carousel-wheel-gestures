@@ -17,11 +17,7 @@ const EmblaCarouselComponent: React.FC = ({ children }) => {
   const scrollPrev = useCallback(() => embla && embla.scrollPrev(), [embla])
   const scrollNext = useCallback(() => embla && embla.scrollNext(), [embla])
 
-  useEffect(() => {
-    if (embla) {
-      return setupWheelGestures(embla)
-    }
-  }, [])
+  useEffect(() => embla && setupWheelGestures(embla), [embla])
 
   useEffect(() => {
     if (embla) {
