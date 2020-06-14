@@ -30,7 +30,7 @@ First you need to follow the [installation instructions for Embla Carousel](http
 yarn add embla-carousel-wheel-gestures
 ````
 
-#### Vanilla JS
+#### JavaScript / TypeScript
 
 ````js
 import EmblaCarousel from 'embla-carousel'
