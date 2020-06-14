@@ -28,7 +28,9 @@ jobs:
           yarn lint
           yarn build
       - name: bundlewatch
-        run: yarn run bundlewatch
+        run: |
+          cd embla-carousel-wheel-gestures
+          yarn run bundlewatch
       - name: release
         run: |
           yarn semantic-release
