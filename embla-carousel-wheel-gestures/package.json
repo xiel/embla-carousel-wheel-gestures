@@ -19,6 +19,7 @@
     "test": "tsdx test",
     "lint": "tsdx lint src",
     "prepare": "tsdx build",
+    "prepublishOnly": "cp ../README.md README.md",
     "semantic-release": "semantic-release"
   },
   "husky": {
