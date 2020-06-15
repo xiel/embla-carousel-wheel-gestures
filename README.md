@@ -9,9 +9,6 @@
   <a href="https://www.npmjs.com/package/embla-carousel-wheel-gestures" target="_blank">
     <img src="https://img.shields.io/npm/v/embla-carousel-wheel-gestures.svg"
   /></a>
-  <a href="https://travis-ci.org/xiel/embla-carousel-wheel-gestures" target="_blank">
-    <img src="https://img.shields.io/travis/xiel/embla-carousel-wheel-gestures/master.svg"
-  /></a>
   <a href="https://prettier.io" target="_blank">
     <img src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat"
   /></a>
