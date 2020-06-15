@@ -24,7 +24,7 @@
 First you need to follow the [installation instructions for Embla Carousel](https://github.com/davidcetinkaya/embla-carousel#installation), after that you can add wheel support:
 
 ````sh
-yarn add embla-carousel-wheel-gestures
+yarn add embla-carousel-wheel-gestures # npm install --save embla-carousel-wheel-gestures
 ````
 
 ### JavaScript / TypeScript
