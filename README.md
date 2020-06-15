@@ -9,10 +9,10 @@
   <a href="https://www.npmjs.com/package/embla-carousel-wheel-gestures" target="_blank">
     <img src="https://img.shields.io/npm/v/embla-carousel-wheel-gestures.svg"
   /></a>
-  <a href="https://prettier.io" target="_blank">
-    <img src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat"
-  /></a>
-  <a href="https://www.npmjs.com/package/embla-carousel-wheel-gestures" target="_blank">
+  
+  <img alt="NPM" src="https://img.shields.io/npm/l/embla-carousel-wheel-gestures">
+  
+  <a href="https://bundlephobia.com/result?p=embla-carousel-wheel-gestures@1.0.2" target="_blank">
     <img
       src="https://img.shields.io/bundlephobia/minzip/embla-carousel-wheel-gestures?color=%234c1&label=gzip%20size"
     />
@@ -73,4 +73,15 @@ const EmblaCarouselComponent = ({ children }) => {
   </a>
 </p>
 
-<br>
+**OS & Browsers**
+
+- Mac OS (Chrome, Firefox, Safari, Edge), Magic Mouse, Magic Trackpad
+- Windows (Chrome, Firefox, Edge), Microsoft Precision Touchpads
+
+### Thanks
+
+Big Thanks to [David Cetinkaya](https://github.com/davidcetinkaya) for creating [Embla Carousel](https://github.com/davidcetinkaya/embla-carousel) with its open API 🙏
+
+### License
+
+MIT.
