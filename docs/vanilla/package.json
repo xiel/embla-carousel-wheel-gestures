@@ -6,12 +6,11 @@
   "main": "index.html",
   "scripts": {
     "start": "parcel index.html --open",
-    "build": "parcel build index.html",
-    "link-local-package": "cd ../../; yarn unlink; yarn link; cd -; yarn link embla-carousel-wheel-gestures"
+    "build": "parcel build index.html"
   },
   "dependencies": {
     "embla-carousel": "^3.0.0",
-    "embla-carousel-wheel-gestures": "^1.0.0"
+    "embla-carousel-wheel-gestures": "^1.0.2"
   },
   "devDependencies": {
     "@babel/core": "7.2.0",

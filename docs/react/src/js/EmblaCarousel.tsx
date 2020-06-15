@@ -1,5 +1,3 @@
-import '../css/embla.css'
-
 import { useEmblaCarousel } from 'embla-carousel-react'
 import { setupWheelGestures } from 'embla-carousel-wheel-gestures'
 import React, { useCallback, useEffect, useState } from 'react'

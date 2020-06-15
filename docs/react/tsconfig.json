@@ -10,7 +10,6 @@
     ],
     "rootDir": "./src",
     "noEmit": true,
-    "strict": true,
     "esModuleInterop": true
   }
 }
