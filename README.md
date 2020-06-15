@@ -19,7 +19,7 @@
   </a>
 </p>
 
-### Installation
+## Installation
 
 First you need to follow the [installation instructions for Embla Carousel](https://github.com/davidcetinkaya/embla-carousel#installation), after that you can add wheel support:
 
@@ -27,7 +27,7 @@ First you need to follow the [installation instructions for Embla Carousel](http
 yarn add embla-carousel-wheel-gestures
 ````
 
-#### JavaScript / TypeScript
+### JavaScript / TypeScript
 
 ````js
 import EmblaCarousel from 'embla-carousel'
@@ -40,7 +40,7 @@ const embla = EmblaCarousel(emblaNode, options)
 setupWheelGestures(embla)
 ````
 
-#### React
+### React
 
 ````js
 import { useEmblaCarousel } from 'embla-carousel-react'
@@ -55,7 +55,7 @@ const EmblaCarouselComponent = ({ children }) => {
 }
 ````
 
-### Examples
+## Examples
 
 <p>Get started instantly with one of the CodeSandboxes below.</p>
 
@@ -73,15 +73,15 @@ const EmblaCarouselComponent = ({ children }) => {
   </a>
 </p>
 
-### OS & Browser Support
+## OS & Browser Support
 
 - Mac OS (Chrome, Firefox, Safari, Edge), Magic Mouse, Magic Trackpad
 - Windows (Chrome, Firefox, Edge), Microsoft Precision Touchpads
 
-### Thanks
+## Thanks
 
 Kudos to [David Cetinkaya](https://github.com/davidcetinkaya) for creating [Embla Carousel](https://github.com/davidcetinkaya/embla-carousel) with its open API 🙏
 
-### License
+## License
 
 MIT.
