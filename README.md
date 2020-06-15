@@ -2,7 +2,7 @@
 
 <p align="center">
   This plugin adds wheel interactions to the amazing
-  <a href="https://github.com/xiel/embla-carousel-wheel-gestures.">Embla Carousel</a>
+  <a href="https://github.com/davidcetinkaya/embla-carousel">Embla Carousel</a>
 </p>
 
 <p align="center">
@@ -55,3 +55,22 @@ const EmblaCarouselComponent = ({ children }) => {
 }
 ````
 
+### Examples
+
+<p>Get started instantly with one of the CodeSandboxes below.</p>
+
+<p>
+  <img src="/assets/codesandbox.svg" height="23" align="top" /> &nbsp;
+  <a href="https://codesandbox.io/s/github/xiel/embla-carousel-wheel-gestures/tree/master/docs/vanilla?file=/src/js/index.ts:1240-1266" target="_blank">
+    <code>JavaScript / TypeScript</code>
+  </a>
+</p>
+
+<p>
+  <img src="/assets/codesandbox.svg" height="23" align="top" /> &nbsp;
+  <a href="https://codesandbox.io/s/github/xiel/embla-carousel-wheel-gestures/tree/master/docs/react?file=/src/js/EmblaCarousel.tsx:879-942" target="_blank">
+    <code>React (embla-carousel-react)</code>
+  </a>
+</p>
+
+<br>
