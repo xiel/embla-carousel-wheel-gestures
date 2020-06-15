@@ -73,14 +73,14 @@ const EmblaCarouselComponent = ({ children }) => {
   </a>
 </p>
 
-**OS & Browsers**
+### OS & Browser Support
 
 - Mac OS (Chrome, Firefox, Safari, Edge), Magic Mouse, Magic Trackpad
 - Windows (Chrome, Firefox, Edge), Microsoft Precision Touchpads
 
 ### Thanks
 
-Big Thanks to [David Cetinkaya](https://github.com/davidcetinkaya) for creating [Embla Carousel](https://github.com/davidcetinkaya/embla-carousel) with its open API 🙏
+Kudos to [David Cetinkaya](https://github.com/davidcetinkaya) for creating [Embla Carousel](https://github.com/davidcetinkaya/embla-carousel) with its open API 🙏
 
 ### License
 
