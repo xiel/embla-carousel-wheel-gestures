@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://davidcetinkaya.github.io/embla-carousel" target="_blank"><img width="70" height="70" src="https://rawgit.com/davidcetinkaya/embla-carousel/master/docs/assets/embla-logo.svg" alt="Embla Carousel"></a>
+  <a href="https://github.com/davidcetinkaya/embla-carousel" target="_blank"><img width="70" height="70" src="https://rawgit.com/davidcetinkaya/embla-carousel/master/docs/assets/embla-logo.svg" alt="Embla Carousel"></a>
 </p>
 <h2 align="center">Wheel Gestures for Embla Carousel</h2>
 
