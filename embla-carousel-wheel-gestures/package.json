@@ -63,7 +63,7 @@
     "eslint-plugin-react-app": "^6.2.2",
     "eslint-plugin-simple-import-sort": "^5.0.0",
     "husky": "^4.2.5",
-    "lint-staged": "^10.2.10",
+    "lint-staged": "^10.2.11",
     "tsdx": "^0.13.2",
     "tslib": "^2.0.0",
     "typescript": "^3.9.1-rc"
