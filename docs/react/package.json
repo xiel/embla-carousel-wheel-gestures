@@ -5,7 +5,7 @@
   "description": "Embla Carousel - Options demonstration.",
   "main": "react.html",
   "scripts": {
-    "start": "parcel react.html --open",
+    "start": "parcel react.html --open --no-cache",
     "build": "yarn; parcel build react.html"
   },
   "dependencies": {
