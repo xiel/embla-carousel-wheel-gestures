@@ -8,6 +8,7 @@
       "DOM.Iterable",
       "ES6"
     ],
+    "strict": true,
     "rootDir": "./src",
     "noEmit": true,
     "esModuleInterop": true
