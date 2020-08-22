@@ -13,7 +13,7 @@
     "embla-carousel-wheel-gestures": "^1.0.2"
   },
   "devDependencies": {
-    "@babel/core": "7.11.1",
+    "@babel/core": "7.11.4",
     "parcel-bundler": "^1.6.1",
     "typescript": "^4.0.2"
   },
