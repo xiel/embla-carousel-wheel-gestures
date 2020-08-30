@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { DotButton, NextButton, PrevButton } from './EmblaCarouselButtons'
 
 const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => {
-  const [EmblaCarouselReact, embla] = useEmblaCarousel({ loop: false })
+  const [emblaRef, embla] = useEmblaCarousel({ loop: false })
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false)
   const [nextBtnEnabled, setNextBtnEnabled] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(0)
@@ -33,7 +33,7 @@ const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => 
 
   return (
     <div className="embla">
-      <EmblaCarouselReact className="embla__viewport">
+      <div ref={emblaRef} className="embla__viewport">
         <div className="embla__container">
           {React.Children.map(children, (Child, index) => (
             <div className="embla__slide" key={index}>
@@ -41,7 +41,7 @@ const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => 
             </div>
           ))}
         </div>
-      </EmblaCarouselReact>
+      </div>
       <div className="embla__dots">
         {scrollSnaps.map((snap, index) => (
           <DotButton selected={index === selectedIndex} onClick={() => scrollTo(index)} key={index} />

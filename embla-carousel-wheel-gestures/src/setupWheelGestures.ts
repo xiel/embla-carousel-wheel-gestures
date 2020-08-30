@@ -1,7 +1,7 @@
-import EmblaCarousel from 'embla-carousel'
+import { EmblaCarouselType } from 'embla-carousel'
 import WheelGestures, { projection, WheelEventState } from 'wheel-gestures'
 
-type TEmblaCarousel = Pick<EmblaCarousel, 'containerNode' | 'on' | 'off' | 'dangerouslyGetEngine'>
+type TEmblaCarousel = Pick<EmblaCarouselType, 'containerNode' | 'on' | 'off' | 'dangerouslyGetEngine'>
 
 export function setupWheelGestures(embla: TEmblaCarousel) {
   if (embla.containerNode()) {
