@@ -50,7 +50,7 @@ import { useEmblaCarousel } from 'embla-carousel-react'
 import { setupWheelGestures } from 'embla-carousel-wheel-gestures'
 
 const EmblaCarouselComponent = ({ children }) => {
-  const [EmblaCarouselReact, embla] = useEmblaCarousel({ loop: false })
+  const [emblaRef, embla] = useEmblaCarousel({ loop: false })
 
   useEffect(() => embla && setupWheelGestures(embla), [embla])
 
