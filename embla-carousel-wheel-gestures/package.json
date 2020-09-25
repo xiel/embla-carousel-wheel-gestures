@@ -1,7 +1,7 @@
 {
   "name": "embla-carousel-wheel-gestures",
   "private": false,
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "wheel gestures for embla carousel",
   "main": "dist/index.js",
   "module": "dist/embla-carousel-wheel-gestures.esm.js",
@@ -51,7 +51,7 @@
     "embla-carousel": "^4.0.1"
   },
   "dependencies": {
-    "wheel-gestures": "^2.2.0"
+    "wheel-gestures": "^2.2.1"
   },
   "devDependencies": {
     "@testing-library/react": "^10.4.3",
