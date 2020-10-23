@@ -1,7 +1,7 @@
 {
   "name": "vanilla-demo",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.5",
   "description": "Embla Carousel - Options demonstration.",
   "main": "index.html",
   "scripts": {

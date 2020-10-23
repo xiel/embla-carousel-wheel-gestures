@@ -44,7 +44,7 @@ export function setupWheelGestures(embla: TEmblaCarousel) {
 
     function wheelGestureEnded() {
       engine.scrollBounds.toggleActive(true)
-      engine.scrollBody.useDefaultSpeed()
+      engine.scrollBody.useBaseSpeed()
       isStarted = false
     }
 
