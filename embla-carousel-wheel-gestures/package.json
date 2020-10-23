@@ -1,7 +1,7 @@
 {
   "name": "embla-carousel-wheel-gestures",
   "private": false,
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "wheel gestures for embla carousel",
   "main": "dist/index.js",
   "module": "dist/embla-carousel-wheel-gestures.esm.js",
@@ -48,7 +48,7 @@
   },
   "homepage": "https://github.com/xiel/embla-carousel-wheel-gestures#readme",
   "peerDependencies": {
-    "embla-carousel": "^4.0.1"
+    "embla-carousel": "^4.0.6"
   },
   "dependencies": {
     "wheel-gestures": "^2.2.1"
@@ -57,7 +57,7 @@
     "@testing-library/react": "^10.4.3",
     "@types/jest": "^26.0.3",
     "bundlewatch": "^0.2.6",
-    "embla-carousel": "^4.0.1",
+    "embla-carousel": "^4.0.6",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-react-app": "^6.2.2",
