@@ -12,7 +12,7 @@
     "@types/react": "^16.9.41",
     "@types/react-dom": "^16.9.8",
     "embla-carousel": "^4.0.6",
-    "embla-carousel-wheel-gestures": "^1.0.4",
+    "embla-carousel-wheel-gestures": "^1.0.5",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
   },
