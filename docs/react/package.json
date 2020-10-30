@@ -19,7 +19,7 @@
   "devDependencies": {
     "@babel/core": "7.11.4",
     "parcel-bundler": "^1.6.1",
-    "typescript": "^4.0.2"
+    "typescript": "^4.0.5"
   },
   "keywords": []
 }
