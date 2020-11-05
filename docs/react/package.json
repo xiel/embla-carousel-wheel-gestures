@@ -13,7 +13,7 @@
     "@types/react-dom": "^16.9.9",
     "embla-carousel": "^4.0.6",
     "embla-carousel-wheel-gestures": "^1.0.6",
-    "react": "^16.13.1",
+    "react": "^17.0.1",
     "react-dom": "^17.0.1"
   },
   "devDependencies": {
