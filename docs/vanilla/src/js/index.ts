@@ -6,17 +6,19 @@ import '../css/radio.css'
 import EmblaCarousel from 'embla-carousel'
 import { setupWheelGestures } from 'embla-carousel-wheel-gestures'
 
+import { setupRTLDirectionIfNeeded } from './directionRTL'
 import { generateDotBtns, selectDotBtn, setupDotBtns } from './dotButtons'
 import { disablePrevNextBtns, setupPrevNextBtns } from './prevAndNextButtons'
 import { setupRadioButtons } from './radioButtons'
 
-const wrap = document.querySelector('.embla')!
+const wrap = document.documentElement.querySelector('.embla')! as HTMLElement
 const viewPort = wrap.querySelector('.embla__viewport')!
 const prevBtn = wrap.querySelector('.embla__button--prev')
 const nextBtn = wrap.querySelector('.embla__button--next')
 const dots = wrap.querySelector('.embla__dots')
 const radioButtons = document.querySelectorAll('.radio__input')
 const radioButtonsArray = [].slice.call(radioButtons)
+
 const embla = EmblaCarousel(viewPort as HTMLElement, {
   loop: false,
 })
@@ -28,6 +30,7 @@ const disablePrevAndNextBtns = disablePrevNextBtns(prevBtn, nextBtn, embla)
 setupPrevNextBtns(prevBtn, nextBtn, embla)
 setupDotBtns(dotsArray, embla)
 setupRadioButtons(radioButtonsArray, embla, disablePrevAndNextBtns)
+setupRTLDirectionIfNeeded(embla, wrap) // visit with query parameter (?rtl)
 
 // add support for wheel gestures
 setupWheelGestures(embla)
