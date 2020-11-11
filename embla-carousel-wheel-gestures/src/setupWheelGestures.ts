@@ -21,6 +21,7 @@ export function setupWheelGestures(embla: TEmblaCarousel) {
 
     const wheelGestures = WheelGestures({
       preventWheelAction: engine.options.axis,
+      reverseSign: [engine.options.direction !== 'rtl', true, false],
     })
 
     const unobserveTargetNode = wheelGestures.observe(targetNode)

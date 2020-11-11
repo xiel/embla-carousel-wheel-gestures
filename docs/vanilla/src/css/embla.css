@@ -82,8 +82,20 @@
   left: 0.7rem;
 }
 
+.embla[dir="rtl"] .embla__button--prev {
+  right: 0.7rem;
+  left: auto;
+  transform: translateY(-50%) scaleX(-1);
+}
+
 .embla__button--next {
   right: 0.7rem;
+}
+
+.embla[dir="rtl"] .embla__button--next {
+  left: 0.7rem;
+  right: auto;
+  transform: translateY(-50%) scaleX(-1);
 }
 
 .embla__dots {
