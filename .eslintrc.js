@@ -6,7 +6,7 @@ module.exports = {
     'react/self-closing-comp': ['error', { component: true, html: true }],
     'react/jsx-boolean-value': 'error',
     '@typescript-eslint/explicit-member-accessibility': 'error',
-    'simple-import-sort/sort': 'error',
+    'simple-import-sort/imports': 'error',
     'import/first': 'warn',
     'import/newline-after-import': 'warn',
     'import/no-duplicates': 'warn',
