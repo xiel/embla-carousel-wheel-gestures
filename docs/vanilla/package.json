@@ -9,7 +9,7 @@
     "build": "parcel build index.html"
   },
   "dependencies": {
-    "embla-carousel": "^4.1.0",
+    "embla-carousel": "^4.1.2",
     "embla-carousel-wheel-gestures": "^1.0.6"
   },
   "devDependencies": {
