@@ -9,7 +9,7 @@
     "build": "yarn; parcel build react.html"
   },
   "dependencies": {
-    "@types/react": "^16.9.56",
+    "@types/react": "^17.0.0",
     "@types/react-dom": "^16.9.9",
     "embla-carousel": "^4.1.2",
     "embla-carousel-wheel-gestures": "^1.0.6",
