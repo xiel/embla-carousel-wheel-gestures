@@ -51,7 +51,7 @@
     "embla-carousel": "^4.1.2"
   },
   "dependencies": {
-    "wheel-gestures": "^2.2.1"
+    "wheel-gestures": "^2.2.3"
   },
   "devDependencies": {
     "@testing-library/react": "^11.2.2",
