@@ -8912,10 +8912,10 @@ whatwg-url@^7.0.0:
     tr46 "^1.0.1"
     webidl-conversions "^4.0.2"
 
-wheel-gestures@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/wheel-gestures/-/wheel-gestures-2.2.1.tgz#da0c71bf5b15e2e8c4c7f925f50b8a23c4b3f9e4"
-  integrity sha512-RswU0m7RWxEevaSitpazsn+4G94c03GkxXo44cnjHQnL0nr69p8SFSvNctKcXyY3g4/xpb/kWAxYQp0UVa4tqg==
+wheel-gestures@^2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/wheel-gestures/-/wheel-gestures-2.2.3.tgz#5ef78b2ec60f9ed54ea821418fc5acea01163ad6"
+  integrity sha512-Yct++FD4dWhFMzxNO7Fspn6EptZy2WtuF7kRSrxsJg3XkNQH8aJlSH7eaV+VbV9rzLWASxB4eCKzJyo0WTHopw==
 
 which-module@^2.0.0:
   version "2.0.0"
