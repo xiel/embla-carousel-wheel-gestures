@@ -55,7 +55,7 @@
   },
   "devDependencies": {
     "@testing-library/react": "^11.2.6",
-    "@types/jest": "^26.0.20",
+    "@types/jest": "^26.0.22",
     "bundlewatch": "^0.3.2",
     "embla-carousel": "^4.3.2",
     "eslint-plugin-import": "^2.22.1",
