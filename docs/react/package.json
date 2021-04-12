@@ -11,7 +11,7 @@
   "dependencies": {
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.3",
-    "embla-carousel": "^4.3.2",
+    "embla-carousel": "^4.4.0",
     "embla-carousel-wheel-gestures": "^1.0.6",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
