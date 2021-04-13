@@ -17,7 +17,7 @@
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@babel/core": "7.13.14",
+    "@babel/core": "7.13.15",
     "parcel-bundler": "^1.12.5",
     "typescript": "^4.2.4"
   },
