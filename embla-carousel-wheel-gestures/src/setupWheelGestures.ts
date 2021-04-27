@@ -1,9 +1,13 @@
 import { EmblaCarouselType } from 'embla-carousel'
-import WheelGestures, { projection, WheelEventState } from 'wheel-gestures'
+import WheelGestures, { WheelEventState } from 'wheel-gestures'
 
 type TEmblaCarousel = Pick<EmblaCarouselType, 'containerNode' | 'on' | 'off' | 'dangerouslyGetEngine'>
 
-export function setupWheelGestures(embla: TEmblaCarousel) {
+interface Options {
+  wheelDraggingClass?: string
+}
+
+export function setupWheelGestures(embla: TEmblaCarousel, { wheelDraggingClass = 'is-wheel-dragging' }: Options = {}) {
   if (embla.containerNode()) {
     initWheelGestures()
   } else {
@@ -18,15 +22,16 @@ export function setupWheelGestures(embla: TEmblaCarousel) {
 
     const engine = embla.dangerouslyGetEngine()
     const targetNode = embla.containerNode().parentNode as Element
-
     const wheelGestures = WheelGestures({
       preventWheelAction: engine.options.axis,
-      reverseSign: [engine.options.direction !== 'rtl', true, false],
+      reverseSign: [true, true, false],
     })
 
     const unobserveTargetNode = wheelGestures.observe(targetNode)
     const offWheel = wheelGestures.on('wheel', handleWheel)
     let isStarted = false
+
+    let startEvent: MouseEvent
 
     cleanupFn = cleanup
 
@@ -35,27 +40,68 @@ export function setupWheelGestures(embla: TEmblaCarousel) {
       initWheelGestures()
     }
 
-    function wheelGestureStarted() {
-      engine.target.set(engine.location)
-      engine.scrollBody.useSpeed(80) // This attraction is so much that it will almost move instantly
-      engine.scrollBounds.toggleActive(false)
-      engine.animation.start()
+    function wheelGestureStarted(state: WheelEventState) {
       isStarted = true
+      startEvent = new MouseEvent('mousedown', state.event)
+
+      // TODO: test in IE11 (should at least not throw)
+      embla.containerNode().dispatchEvent(startEvent)
+      addNativeMouseEventListeners()
+
+      if (wheelDraggingClass) {
+        targetNode.classList.add(wheelDraggingClass)
+      }
     }
 
-    function wheelGestureEnded() {
-      engine.scrollBounds.toggleActive(true)
+    function wheelGestureEnded(state: WheelEventState) {
       isStarted = false
+      embla.containerNode().dispatchEvent(createMouseEvent('mouseup', state))
+      removeNativeMouseEventListeners()
 
-      // does not exist when used with version < 4.0.6
-      if (engine.scrollBody.useBaseSpeed) {
-        engine.scrollBody.useBaseSpeed()
+      if (wheelDraggingClass) {
+        targetNode.classList.remove(wheelDraggingClass)
       }
+    }
+
+    function addNativeMouseEventListeners() {
+      document.documentElement.addEventListener('mousemove', preventNativeMouseHandler, true)
+      document.documentElement.addEventListener('mouseup', preventNativeMouseHandler, true)
+      document.documentElement.addEventListener('mousedown', preventNativeMouseHandler, true)
+    }
+
+    function removeNativeMouseEventListeners() {
+      document.documentElement.removeEventListener('mousemove', preventNativeMouseHandler, true)
+      document.documentElement.removeEventListener('mouseup', preventNativeMouseHandler, true)
+      document.documentElement.removeEventListener('mousedown', preventNativeMouseHandler, true)
+    }
+
+    function preventNativeMouseHandler(e: MouseEvent) {
+      if (isStarted && e.isTrusted) {
+        e.stopImmediatePropagation()
+      }
+    }
+
+    function createMouseEvent(type: 'mousedown' | 'mousemove' | 'mouseup', state: WheelEventState) {
+      const {
+        axisMovement: [moveX, moveY],
+      } = state
+      return new MouseEvent(type, {
+        clientX: startEvent.clientX + moveX,
+        clientY: startEvent.clientY + moveY,
+        screenX: startEvent.screenX + moveX,
+        screenY: startEvent.screenY + moveY,
+        movementX: moveX,
+        movementY: moveY,
+        button: 0,
+        bubbles: true,
+        cancelable: true,
+      })
     }
 
     function cleanup() {
       unobserveTargetNode()
       offWheel()
+      removeNativeMouseEventListeners()
       embla.off('reInit', reInit)
       embla.off('destroy', cleanup)
     }
@@ -63,42 +109,32 @@ export function setupWheelGestures(embla: TEmblaCarousel) {
     function handleWheel(state: WheelEventState) {
       const {
         axisDelta: [deltaX, deltaY],
-        axisVelocity: [veloX, veloY],
       } = state
+
       const primaryAxisDelta = engine.options.axis === 'x' ? deltaX : deltaY
       const crossAxisDelta = engine.options.axis === 'x' ? deltaY : deltaX
-      const primaryAxisVelo = engine.options.axis === 'x' ? veloX : veloY
-
       const isRelease = state.isMomentum && state.previous && !state.previous.isMomentum
       const isEndingOrRelease = (state.isEnding && !state.isMomentum) || isRelease
 
       if (state.isStart) {
-        wheelGestureStarted()
+        wheelGestureStarted(state)
       }
 
       if (Math.abs(primaryAxisDelta) < Math.abs(crossAxisDelta) || !isStarted) {
         if (isStarted) {
-          engine.scrollTo.distance(0, !engine.options.dragFree)
-          wheelGestureEnded()
+          // wheelGestureEnded()
         }
         return
       }
 
-      const reachedAnyBound = engine.limit.reachedAny(engine.location.get())
-      const divider = reachedAnyBound ? 2 : 1
-
       if (isEndingOrRelease) {
-        const releaseProjection = projection(primaryAxisVelo)
-        const releaseProjectionPercent = engine.pxToPercent.measure(releaseProjection)
-
-        engine.scrollTo.distance(releaseProjectionPercent / divider, !engine.options.dragFree)
-
-        wheelGestureEnded()
-      } else if (!state.isMomentum) {
-        const deltaPercent = engine.pxToPercent.measure(primaryAxisDelta)
-        engine.target.add(deltaPercent / divider)
+        wheelGestureEnded(state)
       } else if (state.isEnding) {
-        wheelGestureEnded()
+        wheelGestureEnded(state)
+      } else if (!state.isMomentum) {
+        embla.containerNode().dispatchEvent(createMouseEvent('mousemove', state))
+      } else {
+        console.log('do nothin')
       }
     }
   }

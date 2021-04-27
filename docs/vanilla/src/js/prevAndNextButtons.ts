@@ -1,6 +1,6 @@
 export const setupPrevNextBtns = (prevBtn, nextBtn, embla) => {
-  prevBtn.addEventListener('click', embla.scrollPrev, false)
-  nextBtn.addEventListener('click', embla.scrollNext, false)
+  prevBtn.addEventListener('click', () => embla.scrollPrev(), false)
+  nextBtn.addEventListener('click', () => embla.scrollNext(), false)
 }
 
 export const disablePrevNextBtns = (prevBtn, nextBtn, embla) => {

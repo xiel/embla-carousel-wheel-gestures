@@ -16,6 +16,11 @@
   cursor: grabbing;
 }
 
+.embla__viewport.is-wheel-dragging {
+  cursor: move;
+  cursor: grab;
+}
+
 .embla__container {
   display: flex;
   will-change: transform;
