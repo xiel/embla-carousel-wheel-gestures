@@ -115,26 +115,17 @@ export function setupWheelGestures(embla: TEmblaCarousel, { wheelDraggingClass =
       const crossAxisDelta = engine.options.axis === 'x' ? deltaY : deltaX
       const isRelease = state.isMomentum && state.previous && !state.previous.isMomentum
       const isEndingOrRelease = (state.isEnding && !state.isMomentum) || isRelease
+      const primaryAxisDeltaIsDominant = Math.abs(primaryAxisDelta) > Math.abs(crossAxisDelta)
 
-      if (state.isStart) {
+      if (primaryAxisDeltaIsDominant && !isStarted && !state.isMomentum) {
         wheelGestureStarted(state)
       }
 
-      if (Math.abs(primaryAxisDelta) < Math.abs(crossAxisDelta) || !isStarted) {
-        if (isStarted) {
-          // wheelGestureEnded()
-        }
-        return
-      }
-
+      if (!isStarted) return
       if (isEndingOrRelease) {
         wheelGestureEnded(state)
-      } else if (state.isEnding) {
-        wheelGestureEnded(state)
-      } else if (!state.isMomentum) {
-        embla.containerNode().dispatchEvent(createMouseEvent('mousemove', state))
       } else {
-        console.log('do nothin')
+        embla.containerNode().dispatchEvent(createMouseEvent('mousemove', state))
       }
     }
   }
