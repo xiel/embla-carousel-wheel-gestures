@@ -9134,10 +9134,10 @@ whatwg-url@^7.0.0:
     tr46 "^1.0.1"
     webidl-conversions "^4.0.2"
 
-wheel-gestures@^2.2.3:
-  version "2.2.3"
-  resolved "https://registry.yarnpkg.com/wheel-gestures/-/wheel-gestures-2.2.3.tgz#5ef78b2ec60f9ed54ea821418fc5acea01163ad6"
-  integrity sha512-Yct++FD4dWhFMzxNO7Fspn6EptZy2WtuF7kRSrxsJg3XkNQH8aJlSH7eaV+VbV9rzLWASxB4eCKzJyo0WTHopw==
+wheel-gestures@^2.2.5:
+  version "2.2.5"
+  resolved "https://registry.yarnpkg.com/wheel-gestures/-/wheel-gestures-2.2.5.tgz#d4a7cdcd402500de26f65aabc8553b657515fb7d"
+  integrity sha512-01BlXRjBVt5Gy0VH2rRqMeccHruTGq2Gd1fx0UqCPN8KDeDCmlTXsRGc/hXJk6W+wnO9CNJp2xfntMNRArBxKQ==
 
 which-boxed-primitive@^1.0.2:
   version "1.0.2"
