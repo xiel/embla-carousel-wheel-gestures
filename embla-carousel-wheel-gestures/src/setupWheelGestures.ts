@@ -7,6 +7,8 @@ interface Options {
   wheelDraggingClass?: string
 }
 
+const __DEV__ = process.env.NODE_ENV !== 'production'
+
 export function setupWheelGestures(embla: TEmblaCarousel, { wheelDraggingClass = 'is-wheel-dragging' }: Options = {}) {
   if (embla.containerNode()) {
     initWheelGestures()
@@ -29,8 +31,8 @@ export function setupWheelGestures(embla: TEmblaCarousel, { wheelDraggingClass =
 
     const unobserveTargetNode = wheelGestures.observe(targetNode)
     const offWheel = wheelGestures.on('wheel', handleWheel)
-    let isStarted = false
 
+    let isStarted = false
     let startEvent: MouseEvent
 
     cleanupFn = cleanup
@@ -41,11 +43,20 @@ export function setupWheelGestures(embla: TEmblaCarousel, { wheelDraggingClass =
     }
 
     function wheelGestureStarted(state: WheelEventState) {
-      isStarted = true
-      startEvent = new MouseEvent('mousedown', state.event)
+      try {
+        startEvent = new MouseEvent('mousedown', state.event)
+        dispatchEvent(startEvent)
+      } catch (e) {
+        // Legacy Browsers like IE 10 & 11 will throw when attempting to create the Event
+        if (__DEV__) {
+          console.warn(
+            'Legacy browser requires events-polyfill (https://github.com/xiel/embla-carousel-wheel-gestures#legacy-browsers)'
+          )
+        }
+        return cleanup()
+      }
 
-      // TODO: test in IE11 (should at least not throw)
-      embla.containerNode().dispatchEvent(startEvent)
+      isStarted = true
       addNativeMouseEventListeners()
 
       if (wheelDraggingClass) {
@@ -55,7 +66,7 @@ export function setupWheelGestures(embla: TEmblaCarousel, { wheelDraggingClass =
 
     function wheelGestureEnded(state: WheelEventState) {
       isStarted = false
-      embla.containerNode().dispatchEvent(createMouseEvent('mouseup', state))
+      dispatchEvent(createRelativeMouseEvent('mouseup', state))
       removeNativeMouseEventListeners()
 
       if (wheelDraggingClass) {
@@ -81,7 +92,7 @@ export function setupWheelGestures(embla: TEmblaCarousel, { wheelDraggingClass =
       }
     }
 
-    function createMouseEvent(type: 'mousedown' | 'mousemove' | 'mouseup', state: WheelEventState) {
+    function createRelativeMouseEvent(type: 'mousedown' | 'mousemove' | 'mouseup', state: WheelEventState) {
       const {
         axisMovement: [moveX, moveY],
       } = state
@@ -96,6 +107,10 @@ export function setupWheelGestures(embla: TEmblaCarousel, { wheelDraggingClass =
         bubbles: true,
         cancelable: true,
       })
+    }
+
+    function dispatchEvent(event: UIEvent) {
+      embla.containerNode().dispatchEvent(event)
     }
 
     function cleanup() {
@@ -125,7 +140,7 @@ export function setupWheelGestures(embla: TEmblaCarousel, { wheelDraggingClass =
       if (isEndingOrRelease) {
         wheelGestureEnded(state)
       } else {
-        embla.containerNode().dispatchEvent(createMouseEvent('mousemove', state))
+        dispatchEvent(createRelativeMouseEvent('mousemove', state))
       }
     }
   }
