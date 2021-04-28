@@ -39,7 +39,7 @@ import { setupWheelGestures } from 'embla-carousel-wheel-gestures'
 // initialize Embla Carousel
 const embla = EmblaCarousel(emblaNode, options)
 
-// add support for wheen events
+// add support for wheel events
 setupWheelGestures(embla)
 ````
 
