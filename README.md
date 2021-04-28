@@ -81,9 +81,9 @@ const EmblaCarouselComponent = ({ children }) => {
 - Mac OS (Chrome, Firefox, Safari, Edge), Magic Mouse, Magic Trackpad
 - Windows (Chrome, Firefox, Edge), Microsoft Precision Touchpads
 
-## Legacy Browser Support
+#### Legacy Browsers
 
-If you need to support IE 10 & 11 you might need to install and add polyfills:
+If you need to support IE 10 & 11 you might need to install and add extra polyfills:
 
 ````js
 // Adds support old IE >= 10
