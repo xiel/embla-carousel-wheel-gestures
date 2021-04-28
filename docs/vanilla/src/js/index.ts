@@ -2,6 +2,9 @@ import '../css/base.css'
 import '../css/reset.css'
 import '../css/embla.css'
 import '../css/radio.css'
+// Adds support old IE >= 10
+import 'core-js/stable'
+import 'events-polyfill/src/constructors/MouseEvent'
 
 import EmblaCarousel from 'embla-carousel'
 import { setupWheelGestures } from 'embla-carousel-wheel-gestures'
