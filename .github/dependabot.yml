@@ -1,0 +1,28 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "18:00"
+    timezone: Europe/Berlin
+  open-pull-requests-limit: 2
+  ignore:
+  - dependency-name: "@babel/core"
+    versions:
+    - 7.12.13
+    - 7.12.16
+    - 7.12.17
+    - 7.13.1
+    - 7.13.15
+    - 7.13.8
+  - dependency-name: husky
+    versions:
+    - 5.0.9
+    - 5.1.1
+    - 5.1.2
+    - 5.1.3
+    - 5.2.0
+  - dependency-name: "@testing-library/react"
+    versions:
+    - 11.2.3
