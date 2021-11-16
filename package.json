@@ -1,6 +1,9 @@
 {
   "name": "embla-carousel-wheel-gestures-workspace",
-  "workspaces": ["embla-carousel-wheel-gestures", "docs/*"],
+  "workspaces": [
+    "embla-carousel-wheel-gestures",
+    "docs/*"
+  ],
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -12,5 +15,6 @@
   "description": "workspace for embla-carousel-wheel-gestures",
   "repository": "git@github.com:xiel/embla-carousel-wheel-gestures.git",
   "author": "Felix Leupold <felix@xiel.de>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {}
 }

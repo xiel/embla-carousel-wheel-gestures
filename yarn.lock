@@ -2401,9 +2401,9 @@ caniuse-api@^3.0.0:
     lodash.uniq "^4.5.0"
 
 caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001219:
-  version "1.0.30001228"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001228.tgz#bfdc5942cd3326fa51ee0b42fbef4da9d492a7fa"
-  integrity sha512-QQmLOGJ3DEgokHbMSA8cj2a+geXqmnpyOFT0lhQV6P3/YOJvGDEwoedcwxEQ30gJIwIIunHIicunJ2rzK5gB2A==
+  version "1.0.30001280"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001280.tgz"
+  integrity sha512-kFXwYvHe5rix25uwueBxC569o53J6TpnGu0BEEn+6Lhl2vsnAumRFWEBhDft1fwyo6m1r4i+RqA4+163FpeFcA==
 
 capture-exit@^2.0.0:
   version "2.0.0"
@@ -3326,10 +3326,17 @@ elliptic@^6.0.0, elliptic@^6.5.2:
     minimalistic-assert "^1.0.1"
     minimalistic-crypto-utils "^1.0.1"
 
-embla-carousel@^4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/embla-carousel/-/embla-carousel-4.5.0.tgz#ac8a4cbf34f97a8ad5f7ae9caf58400fe92f1d7f"
-  integrity sha512-Y154DYESgzau+eIUH1hu4FNYRQmSFdzIr0dVE6Dhqv3IILCTLVcMmDosz5D0GpAd1jJDI1r0WbOBGBonA6wirw==
+embla-carousel-react@^6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/embla-carousel-react/-/embla-carousel-react-6.0.1.tgz#4a7d75860dc700bf7eb688ae5daa7a901d62fbb0"
+  integrity sha512-pNtxD1v90E4hIeNwolmmde3YcZEfFgV4xfZjiEjsI2feVDMmWWFEJC2nczsW2wruuaKQk5kPpe3M6m31T/p14Q==
+  dependencies:
+    embla-carousel "6.0.1"
+
+embla-carousel@6.0.1, embla-carousel@^6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/embla-carousel/-/embla-carousel-6.0.1.tgz#1974d64ad18a93963ba4c3532ae24fc18ec6562d"
+  integrity sha512-jz+7AqMOt+v6Ryi8jWVG4rK0rkqr5VunuNd/boGQb2z6lebtJSVR2VmKit3uQV9DkIPp92I9ZydiTYRquk9QUQ==
 
 embla-carousel@^6.0.1:
   version "6.0.1"
