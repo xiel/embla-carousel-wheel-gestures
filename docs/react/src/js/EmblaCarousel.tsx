@@ -1,11 +1,11 @@
+import useEmblaCarousel from 'embla-carousel-react'
 import { setupWheelGestures } from 'embla-carousel-wheel-gestures'
-import { useEmblaCarousel } from 'embla-carousel/react'
 import React, { useCallback, useEffect, useState } from 'react'
 
 import { DotButton, NextButton, PrevButton } from './EmblaCarouselButtons'
 
 const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => {
-  const [emblaRef, embla] = useEmblaCarousel({ loop: false })
+  const [emblaRef, embla] = useEmblaCarousel({ loop: false, skipSnaps: true })
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false)
   const [nextBtnEnabled, setNextBtnEnabled] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(0)
