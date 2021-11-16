@@ -24,6 +24,7 @@ const radioButtonsArray = [].slice.call(radioButtons)
 
 const embla = EmblaCarousel(viewPort as HTMLElement, {
   loop: false,
+  skipSnaps: true,
 })
 
 const dotsArray = generateDotBtns(dots, embla)
