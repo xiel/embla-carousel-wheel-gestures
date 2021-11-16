@@ -1,7 +1,7 @@
 import { EmblaCarouselType } from 'embla-carousel'
 import WheelGestures, { WheelEventState } from 'wheel-gestures'
 
-type TEmblaCarousel = Pick<EmblaCarouselType, 'containerNode' | 'on' | 'off' | 'dangerouslyGetEngine'>
+type TEmblaCarousel = Pick<EmblaCarouselType, 'containerNode' | 'on' | 'off' | 'internalEngine'>
 
 interface Options {
   wheelDraggingClass?: string
@@ -22,7 +22,7 @@ export function setupWheelGestures(embla: TEmblaCarousel, { wheelDraggingClass =
     embla.on('reInit', reInit)
     embla.on('destroy', cleanup)
 
-    const engine = embla.dangerouslyGetEngine()
+    const engine = embla.internalEngine()
     const targetNode = embla.containerNode().parentNode as Element
     const wheelGestures = WheelGestures({
       preventWheelAction: engine.options.axis,
