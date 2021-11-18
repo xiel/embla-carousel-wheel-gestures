@@ -24,9 +24,9 @@ jobs:
       - name: yarn install, build, and test
         run: |
           yarn
+          yarn build
           yarn test
           yarn lint
-          yarn build
       - name: bundlewatch
         run: |
           cd embla-carousel-wheel-gestures
