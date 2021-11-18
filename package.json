@@ -9,7 +9,7 @@
   "scripts": {
     "build": "yarn workspaces run build; yarn move",
     "test": "yarn workspace embla-carousel-wheel-gestures test",
-    "lint": "yarn workspace embla-carousel-wheel-gestures lint",
+    "lint": "yarn workspaces run lint",
     "move": "rm -rf public; mkdir public; cp -R docs/react/dist/* public/; cp -R docs/vanilla/dist/* public/"
   },
   "description": "workspace for embla-carousel-wheel-gestures",

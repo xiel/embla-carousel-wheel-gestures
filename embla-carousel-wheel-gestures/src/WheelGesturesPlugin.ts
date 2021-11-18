@@ -18,6 +18,7 @@ export function WheelGesturesPlugin(userOptions?: Partial<WheelGesturesPluginOpt
     ...defaultOptions,
     ...userOptions,
   }
+
   let cleanup = () => {}
 
   function init(embla: EmblaCarouselType) {
