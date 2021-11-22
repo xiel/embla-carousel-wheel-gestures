@@ -33,7 +33,6 @@ const embla = EmblaCarousel(
     WheelGesturesPlugin(),
   ]
 )
-console.log(`embla`, embla)
 
 const dotsArray = generateDotBtns(dots, embla)
 const setSelectedDotBtn = selectDotBtn(dotsArray, embla)
