@@ -26,37 +26,36 @@
 
 First you need to follow the [installation instructions for Embla Carousel](https://github.com/davidcetinkaya/embla-carousel#installation), after that you can add wheel support:
 
-````sh
+```sh
 yarn add embla-carousel-wheel-gestures # npm install --save embla-carousel-wheel-gestures
-````
+```
 
 ### JavaScript / TypeScript
 
-````js
+```js
 import EmblaCarousel from 'embla-carousel'
-import { setupWheelGestures } from 'embla-carousel-wheel-gestures'
+import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 
 // initialize Embla Carousel
-const embla = EmblaCarousel(emblaNode, options)
-
-// add support for wheel events
-setupWheelGestures(embla)
-````
+const embla = EmblaCarousel(emblaNode, options, [
+  WheelGesturesPlugin()
+])
+```
 
 ### React
 
-````js
+```js
 import { useEmblaCarousel } from 'embla-carousel-react'
-import { setupWheelGestures } from 'embla-carousel-wheel-gestures'
+import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 
 const EmblaCarouselComponent = ({ children }) => {
-  const [emblaRef, embla] = useEmblaCarousel({ loop: false, skipSnaps: true })
-
-  useEffect(() => embla && setupWheelGestures(embla), [embla])
+  const [emblaRef, embla] = useEmblaCarousel({ loop: false, skipSnaps: true }, [
+    WheelGesturesPlugin(),
+  ])
 
   // ...
 }
-````
+```
 
 ## Examples
 
@@ -76,6 +75,14 @@ const EmblaCarouselComponent = ({ children }) => {
   </a>
 </p>
 
+## Options
+
+### wheelDraggingClass
+**Type**: string<br/>
+**Default**: is-wheel-dragging
+
+Choose a classname that will be applied to the container during a wheel gesture. Pass an empty string to opt-out.
+
 ## OS & Browser Support
 
 - Mac OS (Chrome, Firefox, Safari, Edge), Magic Mouse, Magic Trackpad
@@ -85,11 +92,11 @@ const EmblaCarouselComponent = ({ children }) => {
 
 If you need to support IE 10 & 11 you might need to install and add extra polyfills:
 
-````js
+```js
 // Adds support old IE >= 10
 import 'core-js/stable'
 import 'events-polyfill/src/constructors/MouseEvent'
-````
+```
 
 ## Thanks
 

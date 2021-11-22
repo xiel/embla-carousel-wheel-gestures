@@ -6,6 +6,7 @@
   "main": "react.html",
   "scripts": {
     "start": "parcel react.html --open --no-cache",
+    "lint": "tsdx lint src; tsc",
     "build": "yarn; parcel build react.html"
   },
   "dependencies": {

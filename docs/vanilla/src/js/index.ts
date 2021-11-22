@@ -7,7 +7,7 @@ import 'core-js/stable'
 import 'events-polyfill/src/constructors/MouseEvent'
 
 import EmblaCarousel from 'embla-carousel'
-import { setupWheelGestures } from 'embla-carousel-wheel-gestures'
+import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 
 import { setupRTLDirectionIfNeeded } from './directionRTL'
 import { generateDotBtns, selectDotBtn, setupDotBtns } from './dotButtons'
@@ -22,10 +22,17 @@ const dots = wrap.querySelector('.embla__dots')
 const radioButtons = document.querySelectorAll('.radio__input')
 const radioButtonsArray = [].slice.call(radioButtons)
 
-const embla = EmblaCarousel(viewPort as HTMLElement, {
-  loop: false,
-  skipSnaps: true,
-})
+const embla = EmblaCarousel(
+  viewPort as HTMLElement,
+  {
+    loop: false,
+    skipSnaps: true,
+  },
+  [
+    // Add support for wheel gestures
+    WheelGesturesPlugin(),
+  ]
+)
 
 const dotsArray = generateDotBtns(dots, embla)
 const setSelectedDotBtn = selectDotBtn(dotsArray, embla)
@@ -35,9 +42,6 @@ setupPrevNextBtns(prevBtn, nextBtn, embla)
 setupDotBtns(dotsArray, embla)
 setupRadioButtons(radioButtonsArray, embla, disablePrevAndNextBtns)
 setupRTLDirectionIfNeeded(embla, wrap) // visit with query parameter (?rtl)
-
-// add support for wheel gestures
-setupWheelGestures(embla)
 
 embla.on('select', setSelectedDotBtn)
 embla.on('select', disablePrevAndNextBtns)

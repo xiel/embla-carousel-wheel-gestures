@@ -6,6 +6,7 @@
   "main": "index.html",
   "scripts": {
     "start": "parcel index.html --open",
+    "lint": "tsdx lint src; tsc",
     "build": "parcel build index.html"
   },
   "dependencies": {

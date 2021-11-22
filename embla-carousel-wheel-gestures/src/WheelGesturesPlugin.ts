@@ -1,32 +1,28 @@
-import { EmblaCarouselType } from 'embla-carousel'
+import { EmblaCarouselType, EmblaPluginType } from 'embla-carousel'
 import WheelGestures, { WheelEventState } from 'wheel-gestures'
 
-type GetEngineFn = EmblaCarouselType['internalEngine']
-type TEmblaCarousel =
-  | Pick<EmblaCarouselType, 'containerNode' | 'on' | 'off' | 'internalEngine'>
-  // Backwards compatibility for embla-carousel v4 & v5. Can be removed in next major version
-  | (Pick<EmblaCarouselType, 'containerNode' | 'on' | 'off'> & { dangerouslyGetEngine: GetEngineFn })
+type WheelGesturesPluginOptions = {
+  wheelDraggingClass: string
+}
 
-interface Options {
-  wheelDraggingClass?: string
+type WheelGesturesPluginType = EmblaPluginType<WheelGesturesPluginOptions>
+
+const defaultOptions: WheelGesturesPluginOptions = {
+  wheelDraggingClass: 'is-wheel-dragging',
 }
 
 const __DEV__ = process.env.NODE_ENV !== 'production'
 
-export function setupWheelGestures(embla: TEmblaCarousel, { wheelDraggingClass = 'is-wheel-dragging' }: Options = {}) {
-  if (embla.containerNode()) {
-    initWheelGestures()
-  } else {
-    embla.on('init', initWheelGestures)
+export function WheelGesturesPlugin(userOptions?: Partial<WheelGesturesPluginOptions>): WheelGesturesPluginType {
+  const options: WheelGesturesPluginOptions = {
+    ...defaultOptions,
+    ...userOptions,
   }
 
-  let cleanupFn = () => {}
+  let cleanup = () => {}
 
-  function initWheelGestures() {
-    embla.on('reInit', reInit)
-    embla.on('destroy', cleanup)
-
-    const engine = 'internalEngine' in embla ? embla.internalEngine() : embla.dangerouslyGetEngine()
+  function init(embla: EmblaCarouselType) {
+    const engine = embla.internalEngine()
     const targetNode = embla.containerNode().parentNode as Element
     const wheelGestures = WheelGestures({
       preventWheelAction: engine.options.axis,
@@ -38,13 +34,6 @@ export function setupWheelGestures(embla: TEmblaCarousel, { wheelDraggingClass =
 
     let isStarted = false
     let startEvent: MouseEvent
-
-    cleanupFn = cleanup
-
-    function reInit() {
-      cleanup()
-      initWheelGestures()
-    }
 
     function wheelGestureStarted(state: WheelEventState) {
       try {
@@ -63,8 +52,8 @@ export function setupWheelGestures(embla: TEmblaCarousel, { wheelDraggingClass =
       isStarted = true
       addNativeMouseEventListeners()
 
-      if (wheelDraggingClass) {
-        targetNode.classList.add(wheelDraggingClass)
+      if (options.wheelDraggingClass) {
+        targetNode.classList.add(options.wheelDraggingClass)
       }
     }
 
@@ -73,8 +62,8 @@ export function setupWheelGestures(embla: TEmblaCarousel, { wheelDraggingClass =
       dispatchEvent(createRelativeMouseEvent('mouseup', state))
       removeNativeMouseEventListeners()
 
-      if (wheelDraggingClass) {
-        targetNode.classList.remove(wheelDraggingClass)
+      if (options.wheelDraggingClass) {
+        targetNode.classList.remove(options.wheelDraggingClass)
       }
     }
 
@@ -117,14 +106,6 @@ export function setupWheelGestures(embla: TEmblaCarousel, { wheelDraggingClass =
       embla.containerNode().dispatchEvent(event)
     }
 
-    function cleanup() {
-      unobserveTargetNode()
-      offWheel()
-      removeNativeMouseEventListeners()
-      embla.off('reInit', reInit)
-      embla.off('destroy', cleanup)
-    }
-
     function handleWheel(state: WheelEventState) {
       const {
         axisDelta: [deltaX, deltaY],
@@ -147,9 +128,18 @@ export function setupWheelGestures(embla: TEmblaCarousel, { wheelDraggingClass =
         dispatchEvent(createRelativeMouseEvent('mousemove', state))
       }
     }
+
+    cleanup = () => {
+      unobserveTargetNode()
+      offWheel()
+      removeNativeMouseEventListeners()
+    }
   }
 
-  return () => {
-    cleanupFn()
+  return {
+    name: 'wheel-gestures',
+    init,
+    destroy: () => cleanup(),
+    options,
   }
 }
