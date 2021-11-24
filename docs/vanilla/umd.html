@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Embla Carousel (UMD) - with wheel gestures</title>
+    <meta charset="UTF-8" />
+
+    <link rel="stylesheet" href="src/css/base.css" />
+    <link rel="stylesheet" href="src/css/reset.css" />
+    <link rel="stylesheet" href="src/css/embla.css" />
+    <link rel="stylesheet" href="src/css/radio.css" />
+  </head>
+
+  <body>
+    <div class="content">
+      <!-- Embla -->
+      <div class="embla">
+        <div class="embla__viewport">
+          <div class="embla__container">
+            <div class="embla__slide">
+              <div class="embla__slide__inner"></div>
+            </div>
+            <div class="embla__slide">
+              <div class="embla__slide__inner"></div>
+            </div>
+            <div class="embla__slide">
+              <div class="embla__slide__inner"></div>
+            </div>
+            <div class="embla__slide">
+              <div class="embla__slide__inner"></div>
+            </div>
+            <div class="embla__slide">
+              <div class="embla__slide__inner"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Script -->
+    <script src="https://unpkg.com/embla-carousel/embla-carousel.umd.js"></script>
+    <script src="https://unpkg.com/embla-carousel-wheel-gestures/dist/embla-carousel-wheel-gestures.umd.js"></script>
+    <script type="text/javascript">
+      var emblaNode = document.querySelector('.embla__viewport')
+      var options = { loop: false, skipSnaps: true }
+      var plugins = [EmblaCarouselWheelGestures()]
+      var embla = EmblaCarousel(emblaNode, options, plugins)
+    </script>
+  </body>
+</html>
