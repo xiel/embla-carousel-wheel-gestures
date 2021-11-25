@@ -1,7 +1,7 @@
 {
   "name": "embla-carousel-wheel-gestures",
   "private": false,
-  "version": "2.0.0",
+  "version": "2.0.2",
   "description": "wheel gestures for embla carousel",
   "main": "dist/index.js",
   "module": "dist/embla-carousel-wheel-gestures.esm.js",
@@ -15,10 +15,10 @@
   },
   "scripts": {
     "start": "tsdx watch",
-    "build": "tsdx build",
+    "build": "tsdx build --format cjs,esm,umd",
     "test": "tsdx test",
     "lint": "tsdx lint src",
-    "prepare": "tsdx build",
+    "prepare": "tsdx build --format cjs,esm,umd",
     "prepublishOnly": "cp ../README.md README.md"
   },
   "husky": {
@@ -82,6 +82,14 @@
       {
         "path": "dist/*.js",
         "maxSize": "1.5kB"
+      },
+      {
+        "path": "dist/embla-carousel-wheel-gestures.umd.development.js",
+        "maxSize": "6kB"
+      },
+      {
+        "path": "dist/embla-carousel-wheel-gestures.umd.js",
+        "maxSize": "3kB"
       }
     ]
   }

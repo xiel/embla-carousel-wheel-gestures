@@ -6,8 +6,9 @@
   "main": "index.html",
   "scripts": {
     "start": "parcel index.html --open",
+    "start:umd": "parcel umd.html --open",
     "lint": "tsdx lint src; tsc",
-    "build": "parcel build index.html"
+    "build": "parcel build index.html umd.html"
   },
   "dependencies": {
     "embla-carousel": "^6.0.1",

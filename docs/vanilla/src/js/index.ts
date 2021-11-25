@@ -1,7 +1,4 @@
-import '../css/base.css'
-import '../css/reset.css'
-import '../css/embla.css'
-import '../css/radio.css'
+import './styles'
 // Adds support old IE >= 10
 import 'core-js/stable'
 import 'events-polyfill/src/constructors/MouseEvent'
