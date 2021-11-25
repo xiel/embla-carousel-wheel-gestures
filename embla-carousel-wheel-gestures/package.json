@@ -18,7 +18,7 @@
     "build": "tsdx build --format cjs,esm,umd",
     "test": "tsdx test",
     "lint": "tsdx lint src",
-    "prepare": "tsdx build",
+    "prepare": "tsdx build --format cjs,esm,umd",
     "prepublishOnly": "cp ../README.md README.md"
   },
   "husky": {
@@ -79,6 +79,14 @@
   },
   "bundlewatch": {
     "files": [
+      {
+        "path": "dist/embla-carousel-wheel-gestures.umd.development.js",
+        "maxSize": "6kB"
+      },
+      {
+        "path": "dist/embla-carousel-wheel-gestures.umd.js",
+        "maxSize": "3kB"
+      },
       {
         "path": "dist/*.js",
         "maxSize": "1.5kB"
