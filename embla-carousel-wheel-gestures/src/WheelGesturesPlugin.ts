@@ -1,14 +1,16 @@
 import { EmblaCarouselType, EmblaPluginType } from 'embla-carousel'
 import WheelGestures, { WheelEventState } from 'wheel-gestures'
 
-type WheelGesturesPluginOptions = {
+export type WheelGesturesPluginOptions = {
   wheelDraggingClass: string
+  forceWheelAxis?: 'x' | 'y'
 }
 
 type WheelGesturesPluginType = EmblaPluginType<WheelGesturesPluginOptions>
 
 const defaultOptions: WheelGesturesPluginOptions = {
   wheelDraggingClass: 'is-wheel-dragging',
+  forceWheelAxis: undefined,
 }
 
 const __DEV__ = process.env.NODE_ENV !== 'production'
@@ -24,8 +26,9 @@ export function WheelGesturesPlugin(userOptions?: Partial<WheelGesturesPluginOpt
   function init(embla: EmblaCarouselType) {
     const engine = embla.internalEngine()
     const targetNode = embla.containerNode().parentNode as Element
+    const wheelAxis = options.forceWheelAxis ?? engine.options.axis
     const wheelGestures = WheelGestures({
-      preventWheelAction: engine.options.axis,
+      preventWheelAction: wheelAxis,
       reverseSign: [true, true, false],
     })
 
@@ -86,9 +89,15 @@ export function WheelGesturesPlugin(userOptions?: Partial<WheelGesturesPluginOpt
     }
 
     function createRelativeMouseEvent(type: 'mousedown' | 'mousemove' | 'mouseup', state: WheelEventState) {
-      const {
-        axisMovement: [moveX, moveY],
-      } = state
+      let moveX, moveY
+
+      if (wheelAxis === engine.options.axis) {
+        ;[moveX, moveY] = state.axisMovement
+      } else {
+        // if emblas axis and the wheelAxis don't match, swap the axes to match the right embla events
+        ;[moveY, moveX] = state.axisMovement
+      }
+
       return new MouseEvent(type, {
         clientX: startEvent.clientX + moveX,
         clientY: startEvent.clientY + moveY,
@@ -110,9 +119,8 @@ export function WheelGesturesPlugin(userOptions?: Partial<WheelGesturesPluginOpt
       const {
         axisDelta: [deltaX, deltaY],
       } = state
-
-      const primaryAxisDelta = engine.options.axis === 'x' ? deltaX : deltaY
-      const crossAxisDelta = engine.options.axis === 'x' ? deltaY : deltaX
+      const primaryAxisDelta = wheelAxis === 'x' ? deltaX : deltaY
+      const crossAxisDelta = wheelAxis === 'x' ? deltaY : deltaX
       const isRelease = state.isMomentum && state.previous && !state.previous.isMomentum
       const isEndingOrRelease = (state.isEnding && !state.isMomentum) || isRelease
       const primaryAxisDeltaIsDominant = Math.abs(primaryAxisDelta) > Math.abs(crossAxisDelta)
