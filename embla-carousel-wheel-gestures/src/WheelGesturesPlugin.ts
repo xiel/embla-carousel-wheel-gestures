@@ -1,7 +1,7 @@
 import { EmblaCarouselType, EmblaPluginType } from 'embla-carousel'
 import WheelGestures, { WheelEventState } from 'wheel-gestures'
 
-type WheelGesturesPluginOptions = {
+export type WheelGesturesPluginOptions = {
   wheelDraggingClass: string
   forceWheelAxis?: 'x' | 'y'
 }

@@ -1,1 +1,1 @@
-export { WheelGesturesPlugin } from './WheelGesturesPlugin'
+export { WheelGesturesPlugin, WheelGesturesPluginOptions } from './WheelGesturesPlugin'

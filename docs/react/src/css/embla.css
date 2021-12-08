@@ -26,12 +26,27 @@
   margin-left: -1rem;
 }
 
+.embla[data-axis="y"] .embla__container {
+  flex-direction: column;
+  height: 293px;
+  padding-top: -1rem;
+  margin-left: 0;
+}
+
 .embla__slide {
   flex: 0 0 auto;
   width: 80%;
   position: relative;
   padding-left: 1rem;
   counter-increment: embla;
+}
+
+.embla[data-axis="y"] .embla__slide {
+  width: 100%;
+  height: 75%;
+  margin: 0 auto;
+  padding-top: 1rem;
+  padding-left: 0;
 }
 
 .embla__slide__inner {
@@ -41,6 +56,11 @@
   min-height: 200px;
   padding-bottom: 46%;
   font-size: 5rem;
+}
+
+.embla[data-axis="y"] .embla__slide__inner {
+  padding-bottom: 0;
+  height: 100%;
 }
 
 .embla__slide__inner:before {
