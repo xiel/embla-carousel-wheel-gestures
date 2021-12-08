@@ -37,9 +37,7 @@ import EmblaCarousel from 'embla-carousel'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 
 // initialize Embla Carousel
-const embla = EmblaCarousel(emblaNode, options, [
-  WheelGesturesPlugin()
-])
+const embla = EmblaCarousel(emblaNode, options, [WheelGesturesPlugin()])
 ```
 
 ### React
@@ -49,9 +47,7 @@ import { useEmblaCarousel } from 'embla-carousel-react'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 
 const EmblaCarouselComponent = ({ children }) => {
-  const [emblaRef, embla] = useEmblaCarousel({ loop: false, skipSnaps: true }, [
-    WheelGesturesPlugin(),
-  ])
+  const [emblaRef, embla] = useEmblaCarousel({ loop: false, skipSnaps: true }, [WheelGesturesPlugin()])
 
   // ...
 }
@@ -78,10 +74,18 @@ const EmblaCarouselComponent = ({ children }) => {
 ## Options
 
 ### wheelDraggingClass
+
 **Type**: string<br/>
 **Default**: is-wheel-dragging
 
 Choose a classname that will be applied to the container during a wheel gesture. Pass an empty string to opt-out.
+
+### forceWheelAxis
+
+**Type**: 'x' | 'y'<br/>
+**Default**: undefined
+
+Force an axis on which to listen for wheel events. Useful if you want to slide horizontally when scrolling vertically or vice versa.
 
 ## OS & Browser Support
 
