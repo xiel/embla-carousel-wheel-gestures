@@ -81,7 +81,7 @@
     "files": [
       {
         "path": "dist/*.js",
-        "maxSize": "1.5kB"
+        "maxSize": "2kB"
       },
       {
         "path": "dist/embla-carousel-wheel-gestures.umd.development.js",
