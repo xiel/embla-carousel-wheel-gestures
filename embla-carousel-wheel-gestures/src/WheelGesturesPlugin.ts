@@ -5,7 +5,7 @@ export type WheelGesturesPluginOptions = {
   wheelDraggingClass: string
   forceWheelAxis?: 'x' | 'y'
 }
-
+type WheelGesturesPluginUserOptions = Partial<WheelGesturesPluginOptions>
 type WheelGesturesPluginType = EmblaPluginType<WheelGesturesPluginOptions>
 
 const defaultOptions: WheelGesturesPluginOptions = {
@@ -13,11 +13,14 @@ const defaultOptions: WheelGesturesPluginOptions = {
   forceWheelAxis: undefined,
 }
 
+WheelGesturesPlugin.globalOptions = undefined as WheelGesturesPluginUserOptions | undefined
+
 const __DEV__ = process.env.NODE_ENV !== 'production'
 
-export function WheelGesturesPlugin(userOptions?: Partial<WheelGesturesPluginOptions>): WheelGesturesPluginType {
+export function WheelGesturesPlugin(userOptions?: WheelGesturesPluginUserOptions): WheelGesturesPluginType {
   const options: WheelGesturesPluginOptions = {
     ...defaultOptions,
+    ...WheelGesturesPlugin.globalOptions,
     ...userOptions,
   }
 
