@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Embla Carousel - with wheel gestures in shadow dom</title>
+    <meta charset="UTF-8" />
+  </head>
+
+  <body>
+    <template id="embla-template">
+      <style>
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+          color: #ddd;
+          background: #111;
+        }
+
+        h2 {
+          padding-left: 1em;
+        }
+
+        .embla {
+          position: relative;
+        }
+
+        .embla__viewport {
+          width: 100%;
+          overflow: hidden;
+        }
+
+        .embla__viewport.is-wheel-dragging {
+          cursor: move;
+          cursor: grab;
+        }
+
+        .embla__container {
+          display: flex;
+          will-change: transform;
+          margin-left: -1rem;
+        }
+
+        .embla__slide {
+          flex: 0 0 auto;
+          width: 30vw;
+          position: relative;
+          padding-left: 1rem;
+          counter-increment: embla;
+        }
+
+        .embla__slide__inner {
+          background-color: rgb(40, 44, 52);
+          position: relative;
+          border-radius: 0.5rem;
+          min-height: 30vh;
+          height: 200px;
+          /*padding-bottom: 46%;*/
+          font-size: 5rem;
+        }
+
+        .embla__slide__inner:before {
+          color: white;
+          font-weight: 300;
+          line-height: 1;
+          content: counter(embla);
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+      </style>
+      <div class="content">
+        <!-- Embla -->
+        <div class="embla">
+          <div class="embla__viewport">
+            <div class="embla__container">
+              <div class="embla__slide">
+                <div class="embla__slide__inner"></div>
+              </div>
+              <div class="embla__slide">
+                <div class="embla__slide__inner"></div>
+              </div>
+              <div class="embla__slide">
+                <div class="embla__slide__inner"></div>
+              </div>
+              <div class="embla__slide">
+                <div class="embla__slide__inner"></div>
+              </div>
+              <div class="embla__slide">
+                <div class="embla__slide__inner"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <h2>No Shadow DOM:</h2>
+    <embla-carousel-no-shadow></embla-carousel-no-shadow>
+
+    <h2>With Shadow DOM:</h2>
+    <embla-carousel-with-shadow></embla-carousel-with-shadow>
+
+    <!-- Script -->
+    <script src="src/shadow/index.ts" type="module"></script>
+  </body>
+</html>
