@@ -111,6 +111,7 @@ export function WheelGesturesPlugin(userOptions?: WheelGesturesPluginUserOptions
         button: 0,
         bubbles: true,
         cancelable: true,
+        composed: true,
       })
     }
 
