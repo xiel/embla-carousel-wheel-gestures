@@ -3,7 +3,6 @@
   "private": true,
   "version": "1.0.6",
   "description": "Embla Carousel - Options demonstration.",
-  "main": "index.html",
   "scripts": {
     "start": "parcel index.html --open",
     "start:umd": "parcel umd.html --open",
@@ -18,7 +17,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.13.16",
-    "parcel-bundler": "^1.12.5",
+    "parcel": "^2.3.2",
     "typescript": "^4.2.4"
   },
   "keywords": []

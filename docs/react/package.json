@@ -3,7 +3,6 @@
   "private": true,
   "version": "1.0.6",
   "description": "Embla Carousel - Options demonstration.",
-  "main": "react.html",
   "scripts": {
     "start": "parcel react.html --open --no-cache",
     "lint": "tsdx lint src; tsc",
@@ -19,7 +18,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.13.16",
-    "parcel-bundler": "^1.12.5",
+    "parcel": "^2.3.2",
     "typescript": "^4.2.4"
   },
   "keywords": []
