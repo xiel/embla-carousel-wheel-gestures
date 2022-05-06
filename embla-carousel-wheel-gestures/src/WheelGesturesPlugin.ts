@@ -4,6 +4,7 @@ import WheelGestures, { WheelEventState } from 'wheel-gestures'
 export type WheelGesturesPluginOptions = {
   wheelDraggingClass: string
   forceWheelAxis?: 'x' | 'y'
+  target?: Element
 }
 type WheelGesturesPluginUserOptions = Partial<WheelGesturesPluginOptions>
 type WheelGesturesPluginType = EmblaPluginType<WheelGesturesPluginOptions>
@@ -11,6 +12,7 @@ type WheelGesturesPluginType = EmblaPluginType<WheelGesturesPluginOptions>
 const defaultOptions: WheelGesturesPluginOptions = {
   wheelDraggingClass: 'is-wheel-dragging',
   forceWheelAxis: undefined,
+  target: undefined,
 }
 
 WheelGesturesPlugin.globalOptions = undefined as WheelGesturesPluginUserOptions | undefined
@@ -28,7 +30,7 @@ export function WheelGesturesPlugin(userOptions?: WheelGesturesPluginUserOptions
 
   function init(embla: EmblaCarouselType) {
     const engine = embla.internalEngine()
-    const targetNode = embla.containerNode().parentNode as Element
+    const targetNode = options.target ?? (embla.containerNode().parentNode as Element)
     const wheelAxis = options.forceWheelAxis ?? engine.options.axis
     const wheelGestures = WheelGestures({
       preventWheelAction: wheelAxis,

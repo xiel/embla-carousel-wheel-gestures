@@ -4,9 +4,9 @@
   "version": "1.0.6",
   "description": "Embla Carousel - Options demonstration.",
   "scripts": {
-    "start": "parcel react.html --open --no-cache",
+    "start": "vite",
     "lint": "tsdx lint src; tsc",
-    "build": "yarn; parcel build react.html"
+    "build": "vite build"
   },
   "dependencies": {
     "@types/react": "^17.0.3",
@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.13.16",
-    "parcel": "^2.3.2",
+    "vite": "^2.9.8",
     "typescript": "^4.2.4"
   },
   "keywords": []

@@ -9,9 +9,11 @@ type Axis = 'x' | 'y'
 const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => {
   const [axis, setAxis] = useState<Axis>('x')
   const [forceWheelAxis, setForceWheelAxis] = useState<Axis | undefined>()
+  const [target, setTarget] = useState<Element | undefined>()
   const [emblaRef, embla] = useEmblaCarousel({ loop: false, skipSnaps: true, axis }, [
     WheelGesturesPlugin({
       forceWheelAxis,
+      target,
     }),
   ])
 
@@ -48,11 +50,23 @@ const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => 
             <option value="y">Y</option>
           </select>
         </label>
+
         <label>
           wheel axis{forceWheelAxis ? ' (forced)' : ''}:{' '}
           <select value={forceWheelAxis || axis} onChange={(e) => setForceWheelAxis(e.target.value as Axis)}>
             <option value="x">X</option>
             <option value="y">Y</option>
+          </select>
+        </label>
+
+        <label>
+          taget:{' '}
+          <select
+            value={target ? 'documentElement' : ''}
+            onChange={(e) => setTarget(e.target.value ? document.documentElement : undefined)}
+          >
+            <option value="">default</option>
+            <option value="documentElement">documentElement</option>
           </select>
         </label>
       </div>
