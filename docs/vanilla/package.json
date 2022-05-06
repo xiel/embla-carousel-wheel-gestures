@@ -8,7 +8,7 @@
     "start:umd": "parcel umd.html --open",
     "start:shadow": "parcel shadow.html --open",
     "lint": "tsdx lint src; tsc",
-    "build": "parcel build index.html umd.html shadow.html"
+    "build": "parcel build index.html umd.html shadow.html --no-cache"
   },
   "dependencies": {
     "embla-carousel": "^6.2.0",
@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.13.16",
-    "parcel": "^2.3.2",
+    "parcel": "^2.5.0",
     "typescript": "^4.2.4"
   },
   "keywords": []

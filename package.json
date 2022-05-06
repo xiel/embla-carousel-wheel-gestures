@@ -10,7 +10,7 @@
     "build": "yarn workspaces run build; yarn move",
     "test": "yarn workspace embla-carousel-wheel-gestures test",
     "lint": "yarn workspaces run lint",
-    "move": "rm -rf public; mkdir public; cp -R docs/react/dist/* public/; cp -R docs/vanilla/dist/* public/"
+    "move": "rm -rf public; mkdir public; cp docs/react/dist/index.html docs/react/dist/react.html; cp -R docs/react/dist/* public/; cp -R docs/vanilla/dist/* public/"
   },
   "description": "workspace for embla-carousel-wheel-gestures",
   "repository": "git@github.com:xiel/embla-carousel-wheel-gestures.git",
