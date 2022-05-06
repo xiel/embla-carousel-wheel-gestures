@@ -90,6 +90,13 @@ Choose a classname that will be applied to the container during a wheel gesture.
 
 Force an axis on which to listen for wheel events. Useful if you want to slide horizontally when scrolling vertically or vice versa.
 
+
+### target
+**Type**: Element<br/>
+**Default**: undefined
+
+Specify the element that should be observed for wheel events.
+
 ## Global Options
 
 You can also set global options that will be applied to all instances. This allows for overriding the default plugin options with your own:
