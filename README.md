@@ -1,11 +1,11 @@
 <p align="center">
-  <a href="https://github.com/davidcetinkaya/embla-carousel" target="_blank"><img width="70" height="70" src="/assets/embla-logo.svg" alt="Embla Carousel"></a>
+  <a href="https://github.com/davidjerleke/embla-carousel" target="_blank"><img width="70" height="70" src="/assets/embla-logo.svg" alt="Embla Carousel"></a>
 </p>
 <h2 align="center">Wheel Gestures for Embla Carousel</h2>
 
 <p align="center">
   This plugin adds wheel interactions to the amazing
-  <a href="https://github.com/davidcetinkaya/embla-carousel">Embla Carousel</a>
+  <a href="https://github.com/davidjerleke/embla-carousel">Embla Carousel</a>
 </p>
 
 <p align="center">
@@ -124,7 +124,7 @@ import 'events-polyfill/src/constructors/MouseEvent'
 
 ## Thanks
 
-Kudos to [David Cetinkaya](https://github.com/davidcetinkaya) for creating [Embla Carousel](https://github.com/davidcetinkaya/embla-carousel) with its open API 🙏
+Kudos to [David Jerleke](https://github.com/davidjerleke) for creating [Embla Carousel](https://github.com/davidjerleke/embla-carousel) with its open API 🙏
 
 ## License
 
