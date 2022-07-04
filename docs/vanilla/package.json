@@ -11,7 +11,7 @@
     "build": "parcel build index.html umd.html shadow.html --no-cache"
   },
   "dependencies": {
-    "embla-carousel": "^6.2.0",
+    "embla-carousel": "^7.0.0-rc01",
     "embla-carousel-wheel-gestures": "^2.2.0",
     "events-polyfill": "^2.1.2",
     "core-js": "^3.11.1"

@@ -3329,19 +3329,14 @@ electron-to-chromium@^1.4.84:
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.88.tgz#ebe6a2573b563680c7a7bf3a51b9e465c9c501db"
   integrity sha512-oA7mzccefkvTNi9u7DXmT0LqvhnOiN2BhSrKerta7HeUC1cLoIwtbf2wL+Ah2ozh5KQd3/1njrGrwDBXx6d14Q==
 
-embla-carousel-react@^6.2.0:
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/embla-carousel-react/-/embla-carousel-react-6.2.0.tgz#25fbba759b294b54d6241a04ff56dca83bd3c511"
-  integrity sha512-XshB7pmmhso/fzENefflWw5/N3HqCjO8H5CkzQxuCQqV9w+bvEaBkjUZ6fxfqLUMMSKFWIQvMD6uo9f8oKS+2g==
+embla-carousel-react@^7.0.0-rc01:
+  version "7.0.0-rc01"
+  resolved "https://registry.yarnpkg.com/embla-carousel-react/-/embla-carousel-react-7.0.0-rc01.tgz#f4e7a8857c7e84266e6f93654a447d0d792b83ff"
+  integrity sha512-PvgXEtMDzSIEVHOom35ZklEkbeamtEghXQ6ewlHR/qRznnK1udXJSxbZKZEDGRBZ/TMMMYgeKRwlbOxSDNmDKA==
   dependencies:
-    embla-carousel "6.2.0"
+    embla-carousel "7.0.0-rc01"
 
-embla-carousel@6.2.0, embla-carousel@^6.2.0:
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/embla-carousel/-/embla-carousel-6.2.0.tgz#c16b18abe50e05ccd03d0b8d0b738f6a87aea1e0"
-  integrity sha512-dSNsiQ7nmSQJZgbYfZCLdzrnznHwpaAcdJFcMRKgm/pjH1doOgxmfsvlMy4VfO4J11hLz8jm/W8WxSSDqfuu4w==
-
-embla-carousel@^7.0.0-rc01:
+embla-carousel@7.0.0-rc01, embla-carousel@^7.0.0-rc01:
   version "7.0.0-rc01"
   resolved "https://registry.yarnpkg.com/embla-carousel/-/embla-carousel-7.0.0-rc01.tgz#7c9adfd7302b85c2de9354b7ef6343f16a696eb7"
   integrity sha512-IBTSKcPw7u9K0zoLvsnWYsijKsI0msFqzNp6ASIthTXiMZNJNGQt8k0ax7KqUVinDZeNM07WPWqYsjrvUM/Epw==
