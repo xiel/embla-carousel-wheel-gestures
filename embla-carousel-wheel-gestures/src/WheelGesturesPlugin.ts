@@ -155,7 +155,7 @@ export function WheelGesturesPlugin(userOptions?: WheelGesturesPluginUserOptions
   }
 
   const self: WheelGesturesPluginType = {
-    name: 'wheel-gestures',
+    name: 'wheelGestures',
     options: optionsHandler.merge(optionsBase, userOptions),
     init,
     destroy: () => cleanup(),

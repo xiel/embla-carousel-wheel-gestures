@@ -3341,10 +3341,10 @@ embla-carousel@6.2.0, embla-carousel@^6.2.0:
   resolved "https://registry.yarnpkg.com/embla-carousel/-/embla-carousel-6.2.0.tgz#c16b18abe50e05ccd03d0b8d0b738f6a87aea1e0"
   integrity sha512-dSNsiQ7nmSQJZgbYfZCLdzrnznHwpaAcdJFcMRKgm/pjH1doOgxmfsvlMy4VfO4J11hLz8jm/W8WxSSDqfuu4w==
 
-embla-carousel@^7.0.0-rc01:
-  version "7.0.0-rc01"
-  resolved "https://registry.yarnpkg.com/embla-carousel/-/embla-carousel-7.0.0-rc01.tgz#7c9adfd7302b85c2de9354b7ef6343f16a696eb7"
-  integrity sha512-IBTSKcPw7u9K0zoLvsnWYsijKsI0msFqzNp6ASIthTXiMZNJNGQt8k0ax7KqUVinDZeNM07WPWqYsjrvUM/Epw==
+embla-carousel@^7.0.0-rc03:
+  version "7.0.0-rc03"
+  resolved "https://registry.yarnpkg.com/embla-carousel/-/embla-carousel-7.0.0-rc03.tgz#7af5d4af2292228c005f91979f7d34ba0d94f709"
+  integrity sha512-2BQ58/E7hJBmnjxBTOrjcrWcXGN1qQBgwCf2uMIer6/r5OlyFXSqLPd1lq3c/RJA9V5qp3qnfm8mU4hSJS8UWA==
 
 emoji-regex@^7.0.1, emoji-regex@^7.0.2:
   version "7.0.3"
