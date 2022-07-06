@@ -1,15 +1,20 @@
-import { EmblaCarouselType, EmblaPluginType } from 'embla-carousel'
+import EmblaCarousel, { EmblaCarouselType } from 'embla-carousel'
+import { CreateOptionsType } from 'embla-carousel/components/Options'
+import { CreatePluginType } from 'embla-carousel/components/Plugins'
 import WheelGestures, { WheelEventState } from 'wheel-gestures'
 
-export type WheelGesturesPluginOptions = {
+export type WheelGesturesPluginOptions = CreateOptionsType<{
   wheelDraggingClass: string
   forceWheelAxis?: 'x' | 'y'
   target?: Element
-}
+}>
+
 type WheelGesturesPluginUserOptions = Partial<WheelGesturesPluginOptions>
-type WheelGesturesPluginType = EmblaPluginType<WheelGesturesPluginOptions>
+type WheelGesturesPluginType = CreatePluginType<{}, WheelGesturesPluginOptions>
 
 const defaultOptions: WheelGesturesPluginOptions = {
+  active: true,
+  breakpoints: {},
   wheelDraggingClass: 'is-wheel-dragging',
   forceWheelAxis: undefined,
   target: undefined,
@@ -20,15 +25,14 @@ WheelGesturesPlugin.globalOptions = undefined as WheelGesturesPluginUserOptions 
 const __DEV__ = process.env.NODE_ENV !== 'production'
 
 export function WheelGesturesPlugin(userOptions?: WheelGesturesPluginUserOptions): WheelGesturesPluginType {
-  const options: WheelGesturesPluginOptions = {
-    ...defaultOptions,
-    ...WheelGesturesPlugin.globalOptions,
-    ...userOptions,
-  }
+  const optionsHandler = EmblaCarousel.optionsHandler()
+  const optionsBase = optionsHandler.merge(defaultOptions, WheelGesturesPlugin.globalOptions)
+  let options: WheelGesturesPluginType['options']
 
   let cleanup = () => {}
 
   function init(embla: EmblaCarouselType) {
+    options = optionsHandler.atMedia(self.options)
     const engine = embla.internalEngine()
     const targetNode = options.target ?? (embla.containerNode().parentNode as Element)
     const wheelAxis = options.forceWheelAxis ?? engine.options.axis
@@ -150,10 +154,11 @@ export function WheelGesturesPlugin(userOptions?: WheelGesturesPluginUserOptions
     }
   }
 
-  return {
-    name: 'wheel-gestures',
+  const self: WheelGesturesPluginType = {
+    name: 'wheelGestures',
+    options: optionsHandler.merge(optionsBase, userOptions),
     init,
     destroy: () => cleanup(),
-    options,
   }
+  return self
 }
