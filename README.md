@@ -57,6 +57,23 @@ const EmblaCarouselComponent = ({ children }) => {
 }
 ```
 
+### Next.js
+
+```js
+import { useEmblaCarousel } from "embla-carousel-react"
+import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures"
+
+const EmblaCarouselComponent = ({ children }) => {
+  const [emblaRef, embla] = useEmblaCarousel(
+    { loop: false, skipSnaps: true },
+    typeof window !== undefined ? [WheelGesturesPlugin()] : []
+  )
+
+  // ...
+}
+```
+
+
 ## Examples
 
 <p>Get started instantly with one of the CodeSandboxes below.</p>
