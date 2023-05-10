@@ -17,6 +17,7 @@
     "start": "tsdx watch",
     "build": "tsdx build --format cjs,esm,umd",
     "test": "tsdx test",
+    "test:update": "tsdx test -u",
     "lint": "tsdx lint src",
     "prepare": "tsdx build --format cjs,esm,umd",
     "prepublishOnly": "cp ../README.md README.md"
