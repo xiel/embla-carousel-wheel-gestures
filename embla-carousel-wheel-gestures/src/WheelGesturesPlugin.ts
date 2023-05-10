@@ -1,5 +1,6 @@
-import EmblaCarousel, { EmblaCarouselType } from 'embla-carousel'
+import { EmblaCarouselType } from 'embla-carousel'
 import { CreateOptionsType } from 'embla-carousel/components/Options'
+import { OptionsHandlerType } from 'embla-carousel/components/OptionsHandler'
 import { CreatePluginType } from 'embla-carousel/components/Plugins'
 import WheelGestures, { WheelEventState } from 'wheel-gestures'
 
@@ -9,7 +10,6 @@ export type WheelGesturesPluginOptions = CreateOptionsType<{
   target?: Element
 }>
 
-type WheelGesturesPluginUserOptions = Partial<WheelGesturesPluginOptions>
 type WheelGesturesPluginType = CreatePluginType<{}, WheelGesturesPluginOptions>
 
 const defaultOptions: WheelGesturesPluginOptions = {
@@ -20,19 +20,20 @@ const defaultOptions: WheelGesturesPluginOptions = {
   target: undefined,
 }
 
-WheelGesturesPlugin.globalOptions = undefined as WheelGesturesPluginUserOptions | undefined
+WheelGesturesPlugin.globalOptions = undefined as WheelGesturesPluginType['options'] | undefined
 
 const __DEV__ = process.env.NODE_ENV !== 'production'
 
-export function WheelGesturesPlugin(userOptions?: WheelGesturesPluginUserOptions): WheelGesturesPluginType {
-  const optionsHandler = EmblaCarousel.optionsHandler()
-  const optionsBase = optionsHandler.merge(defaultOptions, WheelGesturesPlugin.globalOptions)
-  let options: WheelGesturesPluginType['options']
-
+export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['options'] = {}): WheelGesturesPluginType {
+  let options: WheelGesturesPluginOptions
   let cleanup = () => {}
 
-  function init(embla: EmblaCarouselType) {
-    options = optionsHandler.atMedia(self.options)
+  function init(embla: EmblaCarouselType, optionsHandler: OptionsHandlerType) {
+    const { mergeOptions, optionsAtMedia } = optionsHandler
+    const optionsBase = mergeOptions(defaultOptions, WheelGesturesPlugin.globalOptions)
+    const allOptions = mergeOptions(optionsBase, userOptions)
+    options = optionsAtMedia(allOptions)
+
     const engine = embla.internalEngine()
     const targetNode = options.target ?? (embla.containerNode().parentNode as Element)
     const wheelAxis = options.forceWheelAxis ?? engine.options.axis
@@ -156,7 +157,7 @@ export function WheelGesturesPlugin(userOptions?: WheelGesturesPluginUserOptions
 
   const self: WheelGesturesPluginType = {
     name: 'wheelGestures',
-    options: optionsHandler.merge(optionsBase, userOptions),
+    options: userOptions,
     init,
     destroy: () => cleanup(),
   }
