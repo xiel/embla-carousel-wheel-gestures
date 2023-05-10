@@ -16,5 +16,9 @@
   "repository": "git@github.com:xiel/embla-carousel-wheel-gestures.git",
   "author": "Felix Leupold <felix@xiel.de>",
   "license": "MIT",
-  "dependencies": {}
+  "dependencies": {},
+  "resolutions": {
+    "embla-carousel": "8.0.0-rc03",
+    "embla-carousel-react": "8.0.0-rc03"
+  }
 }

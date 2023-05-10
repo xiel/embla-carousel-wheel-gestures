@@ -48,7 +48,7 @@
   },
   "homepage": "https://github.com/xiel/embla-carousel-wheel-gestures#readme",
   "peerDependencies": {
-    "embla-carousel": "^7.0.0"
+    "embla-carousel": "^8.0.0"
   },
   "dependencies": {
     "wheel-gestures": "^2.2.5"
@@ -57,7 +57,7 @@
     "@testing-library/react": "^11.2.6",
     "@types/jest": "^26.0.23",
     "bundlewatch": "^0.3.2",
-    "embla-carousel": "^7.0.0",
+    "embla-carousel": "^8.0.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-react": "^7.23.2",
     "eslint-plugin-react-app": "^6.2.2",
