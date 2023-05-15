@@ -12,7 +12,7 @@
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.3",
     "embla-carousel-react": "8.0.0-rc03",
-    "embla-carousel-wheel-gestures": "8.0.0-rc03",
+    "embla-carousel-wheel-gestures": "8.0.0-rc04",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
