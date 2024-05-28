@@ -12,7 +12,7 @@ function initializeEmbla(root: ShadowRoot | HTMLElement) {
     viewport as HTMLElement,
     {
       loop: true,
-      skipSnaps: true,
+      skipSnaps: false,
       dragFree: true,
     },
     [WheelGesturesPlugin()]
