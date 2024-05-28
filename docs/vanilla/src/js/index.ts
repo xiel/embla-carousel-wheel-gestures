@@ -23,7 +23,7 @@ const embla = EmblaCarousel(
   viewPort as HTMLElement,
   {
     loop: false,
-    skipSnaps: true,
+    skipSnaps: false,
   },
   [
     // Add support for wheel gestures

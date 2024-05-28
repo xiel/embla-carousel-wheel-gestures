@@ -10,7 +10,7 @@ const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => 
   const [axis, setAxis] = useState<Axis>('x')
   const [forceWheelAxis, setForceWheelAxis] = useState<Axis | undefined>()
   const [target, setTarget] = useState<Element | undefined>()
-  const [emblaRef, embla] = useEmblaCarousel({ loop: false, skipSnaps: true, axis }, [
+  const [emblaRef, embla] = useEmblaCarousel({ loop: false, skipSnaps: false, axis }, [
     WheelGesturesPlugin({
       forceWheelAxis,
       target,

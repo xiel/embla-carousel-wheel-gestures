@@ -108,9 +108,17 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
         ;[moveY, moveX] = state.axisMovement
       }
 
+      // prevent skipping slides (X axis)
+      const noSkipSnapsMoveX =
+        moveX < 0 ? Math.max(moveX, -engine.containerRect.width) : Math.min(moveX, engine.containerRect.width)
+
+      // prevent skipping slides (Y axis)
+      const noSkipSnapsMoveY =
+        moveY < 0 ? Math.max(moveY, -engine.containerRect.height) : Math.min(moveY, engine.containerRect.height)
+
       return new MouseEvent(type, {
-        clientX: startEvent.clientX + moveX,
-        clientY: startEvent.clientY + moveY,
+        clientX: startEvent.clientX + (engine.options.skipSnaps ? moveX : noSkipSnapsMoveX),
+        clientY: startEvent.clientY + (engine.options.skipSnaps ? moveY : noSkipSnapsMoveY),
         screenX: startEvent.screenX + moveX,
         screenY: startEvent.screenY + moveY,
         movementX: moveX,
