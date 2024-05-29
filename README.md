@@ -49,7 +49,7 @@ import { useEmblaCarousel } from 'embla-carousel-react'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 
 const EmblaCarouselComponent = ({ children }) => {
-  const [emblaRef, embla] = useEmblaCarousel({ loop: false, skipSnaps: false }, [
+  const [emblaRef, embla] = useEmblaCarousel({ loop: false, skipSnaps: true }, [
     WheelGesturesPlugin(),
   ])
 
