@@ -173,7 +173,7 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
   return self
 }
 
-declare module 'embla-carousel/components/Plugins' {
+declare module 'embla-carousel' {
   interface EmblaPluginsType {
     wheelGestures?: WheelGesturesPluginType
   }
