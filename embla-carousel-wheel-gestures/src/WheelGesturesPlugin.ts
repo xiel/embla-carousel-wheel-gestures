@@ -1,7 +1,4 @@
-import { EmblaCarouselType } from 'embla-carousel'
-import { CreateOptionsType } from 'embla-carousel/components/Options'
-import { OptionsHandlerType } from 'embla-carousel/components/OptionsHandler'
-import { CreatePluginType } from 'embla-carousel/components/Plugins'
+import { CreateOptionsType, CreatePluginType, EmblaCarouselType, OptionsHandlerType } from 'embla-carousel'
 import WheelGestures, { WheelEventState } from 'wheel-gestures'
 
 export type WheelGesturesPluginOptions = CreateOptionsType<{
