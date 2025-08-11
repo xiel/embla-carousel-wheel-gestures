@@ -8,7 +8,7 @@ type Axis = 'x' | 'y'
 
 const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => {
   const [axis, setAxis] = useState<Axis>('x')
-  const [skipSnaps, setSkipSnaps] = useState(false)
+  const [skipSnaps, setSkipSnaps] = useState(true)
   const [forceWheelAxis, setForceWheelAxis] = useState<Axis | undefined>()
   const [target, setTarget] = useState<Element | undefined>()
   const [emblaRef, embla] = useEmblaCarousel(
