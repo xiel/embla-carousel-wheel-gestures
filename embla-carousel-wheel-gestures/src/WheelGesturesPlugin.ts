@@ -44,8 +44,8 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
 
     let isStarted = false
     let startEvent: MouseEvent
-    let boundaryAccumulation = 0
-    let boundaryBlocked = false
+    let overBoundaryAccumulation = 0
+    let blockedWaitUntilGestureEnd = false
 
     function wheelGestureStarted(state: WheelEventState) {
       try {
@@ -62,7 +62,7 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
       }
 
       isStarted = true
-      boundaryAccumulation = 0
+      overBoundaryAccumulation = 0
       addNativeMouseEventListeners()
 
       if (options.wheelDraggingClass) {
@@ -72,7 +72,7 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
 
     function wheelGestureEnded(state: WheelEventState) {
       isStarted = false
-      boundaryAccumulation = 0
+      overBoundaryAccumulation = 0
       dispatchEvent(createRelativeMouseEvent('mouseup', state))
       removeNativeMouseEventListeners()
 
@@ -136,6 +136,46 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
       embla.containerNode().dispatchEvent(event)
     }
 
+    function checkIfAtBoundary(state: WheelEventState) {
+      const {
+        axisDelta: [deltaX, deltaY],
+      } = state
+      const canScrollNext = embla.canScrollNext()
+      const canScrollPrev = embla.canScrollPrev()
+      const primaryAxisDelta = wheelAxis === 'x' ? deltaX : deltaY
+      const isScrollingNext = primaryAxisDelta < 0
+      const isScrollingPrev = primaryAxisDelta > 0
+      const isAtBoundary = (isScrollingNext && !canScrollNext) || (isScrollingPrev && !canScrollPrev)
+
+      return {
+        isAtBoundary,
+        primaryAxisDelta,
+      }
+    }
+
+    function isBoundaryThresholdReached(state: WheelEventState) {
+      const { isAtBoundary, primaryAxisDelta } = checkIfAtBoundary(state)
+      const scrollBoundaryThreshold = (wheelAxis === 'x' ? engine.containerRect.width : engine.containerRect.height) / 3
+
+      console.log({ overBoundaryAccumulation, isAtBoundary })
+
+      if (isAtBoundary && !state.isMomentum) {
+        overBoundaryAccumulation += Math.abs(primaryAxisDelta)
+
+        // End gesture if we exceed the threshold
+        if (overBoundaryAccumulation > scrollBoundaryThreshold) {
+          blockedWaitUntilGestureEnd = true
+          wheelGestureEnded(state)
+          return true
+        }
+      } else {
+        // Reset accumulation when we can scroll or when not at boundary
+        overBoundaryAccumulation = 0
+      }
+
+      return false
+    }
+
     function handleWheel(state: WheelEventState) {
       const {
         axisDelta: [deltaX, deltaY],
@@ -145,38 +185,20 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
       const isRelease = state.isMomentum && state.previous && !state.previous.isMomentum
       const isEndingOrRelease = (state.isEnding && !state.isMomentum) || isRelease
       const primaryAxisDeltaIsDominant = Math.abs(primaryAxisDelta) > Math.abs(crossAxisDelta)
-      const scrollBoundaryThreshold = (wheelAxis === 'x' ? engine.containerRect.width : engine.containerRect.height) / 2
 
-      if (primaryAxisDeltaIsDominant && !isStarted && !state.isMomentum && !boundaryBlocked) {
+      blockedWaitUntilGestureEnd && console.log(`blockedWaitUntilGestureEnd`, blockedWaitUntilGestureEnd)
+
+      if (primaryAxisDeltaIsDominant && !isStarted && !state.isMomentum && !blockedWaitUntilGestureEnd) {
         wheelGestureStarted(state)
       }
 
-      if (boundaryBlocked && state.isEnding) {
-        boundaryBlocked = false
+      if (blockedWaitUntilGestureEnd && state.isEnding) {
+        blockedWaitUntilGestureEnd = false
       }
 
       if (!isStarted) return
 
-      const canScrollNext = embla.canScrollNext()
-      const canScrollPrev = embla.canScrollPrev()
-      const isScrollingNext = primaryAxisDelta < 0
-      const isScrollingPrev = primaryAxisDelta > 0
-      const isAtBoundary = (isScrollingNext && !canScrollNext) || (isScrollingPrev && !canScrollPrev)
-
-      if (isAtBoundary && !state.isMomentum) {
-        // Accumulate wheel movement when at boundary
-        boundaryAccumulation += Math.abs(primaryAxisDelta)
-
-        // End gesture if we exceed the threshold
-        if (boundaryAccumulation > scrollBoundaryThreshold) {
-          boundaryBlocked = true
-          wheelGestureEnded(state)
-          return
-        }
-      } else {
-        // Reset accumulation when we can scroll or when not at boundary
-        boundaryAccumulation = 0
-      }
+      if (isBoundaryThresholdReached(state)) return
 
       if (isEndingOrRelease) {
         wheelGestureEnded(state)
