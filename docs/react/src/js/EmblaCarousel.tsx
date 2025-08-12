@@ -8,12 +8,13 @@ type Axis = 'x' | 'y'
 
 const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => {
   const [axis, setAxis] = useState<Axis>('x')
+  const [loop, setLoop] = useState(false)
   const [skipSnaps, setSkipSnaps] = useState(true)
   const [forceWheelAxis, setForceWheelAxis] = useState<Axis | undefined>()
   const [target, setTarget] = useState<Element | undefined>()
   const [emblaRef, embla] = useEmblaCarousel(
     {
-      loop: false,
+      loop,
       skipSnaps,
       axis,
     },
@@ -65,6 +66,10 @@ const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => 
             <option value="x">X</option>
             <option value="y">Y</option>
           </select>
+        </label>
+
+        <label>
+          loop: <input type="checkbox" checked={loop} onChange={(e) => setLoop(e.target.checked)} />
         </label>
 
         <label>
