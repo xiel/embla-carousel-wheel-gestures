@@ -39,6 +39,15 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
       reverseSign: [true, true, false],
     })
 
+    let scrollBoundaryThreshold = 0
+
+    function updateSizeRelatedVariables() {
+      scrollBoundaryThreshold = (wheelAxis === 'x' ? engine.containerRect.width : engine.containerRect.height) / 3
+    }
+
+    embla.on('resize', updateSizeRelatedVariables)
+    updateSizeRelatedVariables()
+
     const unobserveTargetNode = wheelGestures.observe(targetNode)
     const offWheel = wheelGestures.on('wheel', handleWheel)
 
@@ -72,7 +81,6 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
 
     function wheelGestureEnded(state: WheelEventState) {
       isStarted = false
-      overBoundaryAccumulation = 0
       dispatchEvent(createRelativeMouseEvent('mouseup', state))
       removeNativeMouseEventListeners()
 
@@ -109,6 +117,21 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
         ;[moveY, moveX] = state.axisMovement
       }
 
+      const { isAtBoundary } = checkIfAtBoundary(state)
+
+      // Apply progressive rubber band damping when at boundaries
+      if (isAtBoundary) {
+        // Calculate progressive damping factor based on how far over boundary we are
+        const progressRatio = Math.min(overBoundaryAccumulation / scrollBoundaryThreshold, 1)
+        const dampingFactor = 0.25 + progressRatio * 0.5
+        const counterMoveSign = moveX > 0 ? -1 : 1
+        const counterMovement = overBoundaryAccumulation * counterMoveSign
+        const dampingMovement = counterMovement * dampingFactor
+
+        moveX += dampingMovement
+        moveY += dampingMovement
+      }
+
       // prevent skipping slides
       if (!engine.options.skipSnaps && !engine.options.dragFree) {
         const maxX = engine.containerRect.width
@@ -140,8 +163,9 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
       const {
         axisDelta: [deltaX, deltaY],
       } = state
-      const canScrollNext = embla.canScrollNext()
-      const canScrollPrev = embla.canScrollPrev()
+      const scrollProgress = embla.scrollProgress()
+      const canScrollNext = scrollProgress < 1
+      const canScrollPrev = scrollProgress > 0
       const primaryAxisDelta = wheelAxis === 'x' ? deltaX : deltaY
       const isScrollingNext = primaryAxisDelta < 0
       const isScrollingPrev = primaryAxisDelta > 0
@@ -155,9 +179,6 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
 
     function isBoundaryThresholdReached(state: WheelEventState) {
       const { isAtBoundary, primaryAxisDelta } = checkIfAtBoundary(state)
-      const scrollBoundaryThreshold = (wheelAxis === 'x' ? engine.containerRect.width : engine.containerRect.height) / 3
-
-      console.log({ overBoundaryAccumulation, isAtBoundary })
 
       if (isAtBoundary && !state.isMomentum) {
         overBoundaryAccumulation += Math.abs(primaryAxisDelta)
@@ -186,8 +207,6 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
       const isEndingOrRelease = (state.isEnding && !state.isMomentum) || isRelease
       const primaryAxisDeltaIsDominant = Math.abs(primaryAxisDelta) > Math.abs(crossAxisDelta)
 
-      blockedWaitUntilGestureEnd && console.log(`blockedWaitUntilGestureEnd`, blockedWaitUntilGestureEnd)
-
       if (primaryAxisDeltaIsDominant && !isStarted && !state.isMomentum && !blockedWaitUntilGestureEnd) {
         wheelGestureStarted(state)
       }
@@ -210,6 +229,7 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
     cleanup = () => {
       unobserveTargetNode()
       offWheel()
+      embla.off('resize', updateSizeRelatedVariables)
       removeNativeMouseEventListeners()
     }
   }
