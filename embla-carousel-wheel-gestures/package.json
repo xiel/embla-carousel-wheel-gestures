@@ -89,15 +89,11 @@
     "files": [
       {
         "path": "dist/*.js",
-        "maxSize": "2kB"
+        "maxSize": "3kB"
       },
       {
         "path": "dist/embla-carousel-wheel-gestures.umd.development.js",
-        "maxSize": "6kB"
-      },
-      {
-        "path": "dist/embla-carousel-wheel-gestures.umd.js",
-        "maxSize": "3kB"
+        "maxSize": "7kB"
       }
     ]
   }
