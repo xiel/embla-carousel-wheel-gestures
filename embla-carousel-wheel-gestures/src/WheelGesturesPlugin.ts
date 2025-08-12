@@ -39,14 +39,9 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
       reverseSign: [true, true, false],
     })
 
-    let scrollBoundaryThreshold = 0
-
     function updateSizeRelatedVariables() {
-      scrollBoundaryThreshold = (wheelAxis === 'x' ? engine.containerRect.width : engine.containerRect.height) / 3
+      scrollBoundaryThreshold = (wheelAxis === 'x' ? engine.containerRect.width : engine.containerRect.height) / 2
     }
-
-    embla.on('resize', updateSizeRelatedVariables)
-    updateSizeRelatedVariables()
 
     const unobserveTargetNode = wheelGestures.observe(targetNode)
     const offWheel = wheelGestures.on('wheel', handleWheel)
@@ -54,7 +49,11 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
     let isStarted = false
     let startEvent: MouseEvent
     let overBoundaryAccumulation = 0
+    let scrollBoundaryThreshold = 0
     let blockedWaitUntilGestureEnd = false
+
+    updateSizeRelatedVariables()
+    embla.on('resize', updateSizeRelatedVariables)
 
     function wheelGestureStarted(state: WheelEventState) {
       try {
