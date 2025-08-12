@@ -84,6 +84,9 @@ describe('WheelGesturesPlugin', () => {
       canScrollNext: jest.fn(() => true),
       canScrollPrev: jest.fn(() => true),
       internalEngine: jest.fn(() => mockEngine),
+      on: jest.fn(),
+      off: jest.fn(),
+      scrollProgress: jest.fn(() => 0.5),
     } as any
 
     // Mock options handler
@@ -383,14 +386,29 @@ describe('WheelGesturesPlugin', () => {
     })
 
     it('should block gesture when boundary threshold exceeded', () => {
+      // Set up boundary condition - can't scroll next and scrollProgress at end
       mockEmbla.canScrollNext.mockReturnValue(false)
+      mockEmbla.scrollProgress.mockReturnValue(1) // at the end
+
+      // Start a new gesture since beforeEach already cleared mocks
+      const startState: WheelEventState = {
+        axisDelta: [10, 2],
+        axisMovement: [10, 2],
+        isMomentum: false,
+        isEnding: false,
+        previous: null,
+        event: new WheelEvent('wheel'),
+      } as any
+
+      wheelHandler(startState)
+      jest.clearAllMocks()
 
       const boundaryState: WheelEventState = {
         axisDelta: [-500, 2], // large movement exceeding threshold
         axisMovement: [10, 2],
         isMomentum: false,
         isEnding: false,
-        previous: null,
+        previous: startState,
         event: new WheelEvent('wheel'),
       } as any
 
