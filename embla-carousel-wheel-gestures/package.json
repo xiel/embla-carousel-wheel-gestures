@@ -26,6 +26,7 @@
     "test": "tsdx test",
     "test:update": "tsdx test -u",
     "lint": "tsdx lint src test",
+    "lint:fix": "tsdx lint src test --fix",
     "prepare": "tsdx build --format cjs,esm,umd",
     "prepublishOnly": "cp ../README.md README.md"
   },
