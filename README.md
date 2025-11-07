@@ -85,10 +85,10 @@ Choose a classname that will be applied to the container during a wheel gesture.
 
 
 ### forceWheelAxis
-**Type**: 'x' | 'y'<br/>
+**Type**: 'x' | 'y' | 'both'<br/>
 **Default**: undefined
 
-Force an axis on which to listen for wheel events. Useful if you want to slide horizontally when scrolling vertically or vice versa.
+Force an axis on which to listen for wheel events. Useful if you want to slide horizontally when scrolling vertically or vice versa. If you set 'both', the plugin will listen for wheel events on both axes and use the dominant axis to determine the direction of the scroll.
 
 
 ### target
