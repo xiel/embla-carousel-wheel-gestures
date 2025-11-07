@@ -3,7 +3,7 @@ import WheelGestures, { WheelEventState } from 'wheel-gestures'
 
 export type WheelGesturesPluginOptions = CreateOptionsType<{
   wheelDraggingClass: string
-  forceWheelAxis?: 'x' | 'y'
+  forceWheelAxis?: 'x' | 'y' | 'both'
   target?: Element
 }>
 
@@ -35,12 +35,18 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
     const targetNode = options.target ?? (embla.containerNode().parentNode as Element)
     const wheelAxis = options.forceWheelAxis ?? engine.options.axis
     const wheelGestures = WheelGestures({
-      preventWheelAction: wheelAxis,
+      preventWheelAction: wheelAxis === 'both' || wheelAxis,
       reverseSign: [true, true, false],
     })
 
     function updateSizeRelatedVariables() {
-      scrollBoundaryThreshold = (wheelAxis === 'x' ? engine.containerRect.width : engine.containerRect.height) / 2
+      scrollBoundaryThreshold =
+        (wheelAxis === 'x'
+          ? engine.containerRect.width
+          : wheelAxis === 'y'
+          ? engine.containerRect.height
+          : // wheelAxis === 'both'
+            Math.max(engine.containerRect.width, engine.containerRect.height)) / 2
     }
 
     const unobserveTargetNode = wheelGestures.observe(targetNode)
@@ -51,6 +57,7 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
     let overBoundaryAccumulation = 0
     let scrollBoundaryThreshold = 0
     let blockedWaitUntilGestureEnd = false
+    let currentDominantAxis: 'x' | 'y' | undefined
 
     updateSizeRelatedVariables()
     embla.on('resize', updateSizeRelatedVariables)
@@ -86,6 +93,11 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
       if (options.wheelDraggingClass) {
         targetNode.classList.remove(options.wheelDraggingClass)
       }
+
+      // Reset dominant axis when gesture ends
+      if (wheelAxis === 'both') {
+        currentDominantAxis = undefined
+      }
     }
 
     function addNativeMouseEventListeners() {
@@ -109,14 +121,23 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
     function createRelativeMouseEvent(type: 'mousedown' | 'mousemove' | 'mouseup', state: WheelEventState) {
       let moveX, moveY
 
-      if (wheelAxis === engine.options.axis) {
+      // Determine the effective wheel axis for mapping
+      const effectiveWheelAxis =
+        wheelAxis === 'both'
+          ? currentDominantAxis ?? (Math.abs(state.axisDelta[0]) > Math.abs(state.axisDelta[1]) ? 'x' : 'y')
+          : // wheelAxis === 'x' || 'y'
+            wheelAxis
+
+      // Map movements: swap axes if effective wheel axis doesn't match Embla's axis
+      if (effectiveWheelAxis === engine.options.axis) {
         ;[moveX, moveY] = state.axisMovement
       } else {
-        // if emblas axis and the wheelAxis don't match, swap the axes to match the right embla events
+        // if emblas axis and the effectiveWheelAxis don't match, swap the axes to match the right embla events
         ;[moveY, moveX] = state.axisMovement
       }
 
-      const { isAtBoundary } = checkIfAtBoundary(state)
+      const primaryAxisDelta = state.axisDelta[effectiveWheelAxis === 'x' ? 0 : 1]
+      const isAtBoundary = checkIfAtBoundary(primaryAxisDelta)
 
       // Apply progressive rubber band damping when at boundaries
       if (isAtBoundary) {
@@ -158,26 +179,17 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
       embla.containerNode().dispatchEvent(event)
     }
 
-    function checkIfAtBoundary(state: WheelEventState) {
-      const {
-        axisDelta: [deltaX, deltaY],
-      } = state
+    function checkIfAtBoundary(primaryAxisDelta: number) {
       const scrollProgress = embla.scrollProgress()
       const canScrollNext = scrollProgress < 1
       const canScrollPrev = scrollProgress > 0
-      const primaryAxisDelta = wheelAxis === 'x' ? deltaX : deltaY
       const isScrollingNext = primaryAxisDelta < 0
       const isScrollingPrev = primaryAxisDelta > 0
-      const isAtBoundary = (isScrollingNext && !canScrollNext) || (isScrollingPrev && !canScrollPrev)
-
-      return {
-        isAtBoundary,
-        primaryAxisDelta,
-      }
+      return (isScrollingNext && !canScrollNext) || (isScrollingPrev && !canScrollPrev)
     }
 
-    function isBoundaryThresholdReached(state: WheelEventState) {
-      const { isAtBoundary, primaryAxisDelta } = checkIfAtBoundary(state)
+    function isBoundaryThresholdReached(state: WheelEventState, primaryAxisDelta: number) {
+      const isAtBoundary = checkIfAtBoundary(primaryAxisDelta)
 
       if (isAtBoundary && !state.isMomentum) {
         overBoundaryAccumulation += Math.abs(primaryAxisDelta)
@@ -200,8 +212,21 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
       const {
         axisDelta: [deltaX, deltaY],
       } = state
-      const primaryAxisDelta = wheelAxis === 'x' ? deltaX : deltaY
-      const crossAxisDelta = wheelAxis === 'x' ? deltaY : deltaX
+
+      // Store the dominant axis when starting a gesture (only for 'both' mode)
+      if (wheelAxis === 'both' && !currentDominantAxis && !isStarted) {
+        currentDominantAxis = Math.abs(deltaX) > Math.abs(deltaY) ? 'x' : 'y'
+      }
+
+      const [primaryAxisDelta, crossAxisDelta] =
+        wheelAxis === 'both'
+          ? currentDominantAxis === 'x'
+            ? [deltaX, deltaY]
+            : // currentDominantAxis === 'y'
+              [deltaY, deltaX]
+          : wheelAxis === 'x'
+          ? [deltaX, deltaY]
+          : [deltaY, deltaX]
       const isRelease = state.isMomentum && state.previous && !state.previous.isMomentum
       const isEndingOrRelease = (state.isEnding && !state.isMomentum) || isRelease
       const primaryAxisDeltaIsDominant = Math.abs(primaryAxisDelta) > Math.abs(crossAxisDelta)
@@ -216,7 +241,7 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
 
       if (!isStarted) return
 
-      if (isBoundaryThresholdReached(state)) return
+      if (isBoundaryThresholdReached(state, primaryAxisDelta)) return
 
       if (isEndingOrRelease) {
         wheelGestureEnded(state)
