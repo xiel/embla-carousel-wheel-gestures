@@ -31,19 +31,19 @@ const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => 
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([])
 
-  const scrollTo = useCallback((index) => embla && embla.scrollTo(index), [embla])
-  const scrollPrev = useCallback(() => embla && embla.scrollPrev(), [embla])
-  const scrollNext = useCallback(() => embla && embla.scrollNext(), [embla])
+  const goTo = useCallback((index) => embla && embla.goTo(index), [embla])
+  const goToPrev = useCallback(() => embla && embla.goToPrev(), [embla])
+  const goToNext = useCallback(() => embla && embla.goToNext(), [embla])
 
   useEffect(() => {
     if (embla) {
       const onSelect = () => {
-        setSelectedIndex(embla.selectedScrollSnap())
-        setPrevBtnEnabled(embla.canScrollPrev())
-        setNextBtnEnabled(embla.canScrollNext())
+        setSelectedIndex(embla.selectedSnap())
+        setPrevBtnEnabled(embla.canGoToPrev())
+        setNextBtnEnabled(embla.canGoToNext())
       }
 
-      setScrollSnaps(embla.scrollSnapList())
+      setScrollSnaps(embla.snapList())
       embla.on('select', onSelect)
       onSelect()
     }
@@ -99,11 +99,11 @@ const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => 
         </div>
         <div className="embla__dots">
           {scrollSnaps.map((snap, index) => (
-            <DotButton selected={index === selectedIndex} onClick={() => scrollTo(index)} key={index} />
+            <DotButton selected={index === selectedIndex} onClick={() => goTo(index)} key={index} />
           ))}
         </div>
-        <PrevButton onClick={scrollPrev} enabled={prevBtnEnabled} />
-        <NextButton onClick={scrollNext} enabled={nextBtnEnabled} />
+        <PrevButton onClick={goToPrev} enabled={prevBtnEnabled} />
+        <NextButton onClick={goToNext} enabled={nextBtnEnabled} />
       </div>
     </>
   )

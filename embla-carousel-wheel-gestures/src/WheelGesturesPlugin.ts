@@ -163,12 +163,12 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
         axisDelta: [deltaX, deltaY],
       } = state
       const scrollProgress = embla.scrollProgress()
-      const canScrollNext = scrollProgress < 1
-      const canScrollPrev = scrollProgress > 0
+      const canGoToNext = scrollProgress < 1
+      const canGoToPrev = scrollProgress > 0
       const primaryAxisDelta = wheelAxis === 'x' ? deltaX : deltaY
       const isScrollingNext = primaryAxisDelta < 0
       const isScrollingPrev = primaryAxisDelta > 0
-      const isAtBoundary = (isScrollingNext && !canScrollNext) || (isScrollingPrev && !canScrollPrev)
+      const isAtBoundary = (isScrollingNext && !canGoToNext) || (isScrollingPrev && !canGoToPrev)
 
       return {
         isAtBoundary,

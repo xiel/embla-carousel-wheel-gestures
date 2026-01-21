@@ -1,12 +1,12 @@
 export const setupDotBtns = (dotsArray, embla) => {
   dotsArray.forEach((dotNode, i) => {
     dotNode.classList.add('embla__dot')
-    dotNode.addEventListener('click', () => embla.scrollTo(i), false)
+    dotNode.addEventListener('click', () => embla.goTo(i), false)
   })
 }
 
 export const generateDotBtns = (dots, embla) => {
-  const scrollSnaps = embla.scrollSnapList()
+  const scrollSnaps = embla.snapList()
   const dotsFrag = document.createDocumentFragment()
   const dotsArray = scrollSnaps.map(() => document.createElement('button'))
   dotsArray.forEach((dotNode) => dotsFrag.appendChild(dotNode))
@@ -15,8 +15,8 @@ export const generateDotBtns = (dots, embla) => {
 }
 
 export const selectDotBtn = (dotsArray, embla) => () => {
-  const previous = embla.previousScrollSnap()
-  const selected = embla.selectedScrollSnap()
+  const previous = embla.previousSnap()
+  const selected = embla.selectedSnap()
   dotsArray[previous].classList.remove('is-selected')
   dotsArray[selected].classList.add('is-selected')
 }
