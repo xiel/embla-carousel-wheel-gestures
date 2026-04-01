@@ -25,6 +25,15 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
   let options: WheelGesturesPluginOptions
   let cleanup = () => {}
 
+  let isSsr = false
+  let destroyed = false
+
+  function pluginIsActive(): boolean {
+    if (isSsr) return false
+    if (destroyed) return false
+    return options.active
+  }
+
   function init(embla: EmblaCarouselType, optionsHandler: OptionsHandlerType) {
     const { mergeOptions, optionsAtMedia } = optionsHandler
     const optionsBase = mergeOptions(defaultOptions, WheelGesturesPlugin.globalOptions)
@@ -32,6 +41,10 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
     options = optionsAtMedia(allOptions)
 
     const engine = embla.internalEngine()
+    isSsr = engine.isSsr
+
+    if (!pluginIsActive()) return
+
     const targetNode = options.target ?? (embla.containerNode().parentNode as Element)
     const wheelAxis = options.forceWheelAxis ?? engine.options.axis
     const wheelGestures = WheelGestures({
@@ -226,10 +239,13 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
     }
 
     cleanup = () => {
+      if (!pluginIsActive()) return
+
       unobserveTargetNode()
       offWheel()
       embla.off('resize', updateSizeRelatedVariables)
       removeNativeMouseEventListeners()
+      destroyed = true
     }
   }
 
