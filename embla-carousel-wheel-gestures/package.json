@@ -40,7 +40,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/xiel/embla-carousel-wheel-gestures.git"
+    "url": "git+https://github.com/xiel/embla-carousel-wheel-gestures.git"
   },
   "keywords": [
     "wheel",
