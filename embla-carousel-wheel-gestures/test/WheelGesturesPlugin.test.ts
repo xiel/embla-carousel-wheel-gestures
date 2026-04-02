@@ -74,6 +74,7 @@ describe('WheelGesturesPlugin', () => {
 
     // Mock engine
     mockEngine = {
+      isSsr: false,
       options: { axis: 'x', skipSnaps: false, dragFree: false },
       containerRect: { width: 800, height: 600 },
     }
@@ -81,8 +82,6 @@ describe('WheelGesturesPlugin', () => {
     // Mock embla carousel
     mockEmbla = {
       containerNode: jest.fn(() => mockContainerNode),
-      canGoToNext: jest.fn(() => true),
-      canGoToPrev: jest.fn(() => true),
       internalEngine: jest.fn(() => mockEngine),
       on: jest.fn(),
       off: jest.fn(),
@@ -185,6 +184,30 @@ describe('WheelGesturesPlugin', () => {
         preventWheelAction: 'y',
         reverseSign: [true, true, false],
       })
+    })
+
+    it('should not initialize listeners during SSR', () => {
+      const WheelGestures = require('wheel-gestures').default
+
+      mockEngine.isSsr = true
+
+      const plugin = WheelGesturesPlugin()
+      plugin.init(mockEmbla, mockOptionsHandler)
+
+      expect(WheelGestures).not.toHaveBeenCalled()
+      expect(mockEmbla.on).not.toHaveBeenCalled()
+      expect(document.documentElement.addEventListener).not.toHaveBeenCalled()
+    })
+
+    it('should not initialize listeners when inactive', () => {
+      const WheelGestures = require('wheel-gestures').default
+
+      const plugin = WheelGesturesPlugin({ active: false })
+      plugin.init(mockEmbla, mockOptionsHandler)
+
+      expect(WheelGestures).not.toHaveBeenCalled()
+      expect(mockEmbla.on).not.toHaveBeenCalled()
+      expect(document.documentElement.addEventListener).not.toHaveBeenCalled()
     })
   })
 
@@ -368,7 +391,7 @@ describe('WheelGesturesPlugin', () => {
     })
 
     it('should accumulate boundary movement when at boundary', () => {
-      mockEmbla.canGoToNext.mockReturnValue(false)
+      mockEmbla.scrollProgress.mockReturnValue(1)
 
       const boundaryState: WheelEventState = {
         axisDelta: [-50, 2], // scrolling next but can't scroll
@@ -386,9 +409,8 @@ describe('WheelGesturesPlugin', () => {
     })
 
     it('should block gesture when boundary threshold exceeded', () => {
-      // Set up boundary condition - can't scroll next and scrollProgress at end
-      mockEmbla.canGoToNext.mockReturnValue(false)
-      mockEmbla.scrollProgress.mockReturnValue(1) // at the end
+      // Set up boundary condition - scrollProgress at the end
+      mockEmbla.scrollProgress.mockReturnValue(1)
 
       // Start a new gesture since beforeEach already cleared mocks
       const startState: WheelEventState = {
@@ -420,7 +442,7 @@ describe('WheelGesturesPlugin', () => {
 
     it('should reset accumulation when not at boundary', () => {
       // First, accumulate some boundary movement
-      mockEmbla.canGoToNext.mockReturnValue(false)
+      mockEmbla.scrollProgress.mockReturnValue(1)
       const boundaryState: WheelEventState = {
         axisDelta: [-50, 2],
         axisMovement: [10, 2],
@@ -433,7 +455,7 @@ describe('WheelGesturesPlugin', () => {
       wheelHandler(boundaryState)
 
       // Then allow scrolling again
-      mockEmbla.canGoToNext.mockReturnValue(true)
+      mockEmbla.scrollProgress.mockReturnValue(0.5)
       const normalState: WheelEventState = {
         axisDelta: [-10, 2],
         axisMovement: [20, 4],
@@ -451,7 +473,7 @@ describe('WheelGesturesPlugin', () => {
 
     it('should unblock boundary when gesture ends', () => {
       // Block boundary first
-      mockEmbla.canGoToNext.mockReturnValue(false)
+      mockEmbla.scrollProgress.mockReturnValue(1)
       const boundaryState: WheelEventState = {
         axisDelta: [-500, 2],
         axisMovement: [10, 2],
@@ -734,6 +756,15 @@ describe('WheelGesturesPlugin', () => {
   })
 
   describe('Cleanup and Destruction', () => {
+    it('should safely destroy after SSR init', () => {
+      mockEngine.isSsr = true
+
+      const plugin = WheelGesturesPlugin()
+      plugin.init(mockEmbla, mockOptionsHandler)
+
+      expect(() => plugin.destroy()).not.toThrow()
+    })
+
     it('should cleanup on destroy', () => {
       const WheelGestures = require('wheel-gestures').default
       const mockWheelGestures = WheelGestures()

@@ -42,5 +42,8 @@ setupRTLDirectionIfNeeded(embla, wrap) // visit with query parameter (?rtl)
 
 embla.on('select', setSelectedDotBtn)
 embla.on('select', disablePrevAndNextBtns)
+embla.on('reinit', setSelectedDotBtn)
+embla.on('reinit', disablePrevAndNextBtns)
+
 setSelectedDotBtn()
 disablePrevAndNextBtns()
