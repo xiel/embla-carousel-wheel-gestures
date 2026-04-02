@@ -31,21 +31,27 @@ const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => 
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([])
 
-  const goTo = useCallback((index) => embla && embla.goTo(index), [embla])
-  const goToPrev = useCallback(() => embla && embla.goToPrev(), [embla])
-  const goToNext = useCallback(() => embla && embla.goToNext(), [embla])
+  const scrollTo = useCallback((index: number) => embla && embla.goTo(index), [embla])
+  const scrollPrev = useCallback(() => embla && embla.goToPrev(), [embla])
+  const scrollNext = useCallback(() => embla && embla.goToNext(), [embla])
 
   useEffect(() => {
-    if (embla) {
-      const onSelect = () => {
-        setSelectedIndex(embla.selectedSnap())
-        setPrevBtnEnabled(embla.canGoToPrev())
-        setNextBtnEnabled(embla.canGoToNext())
-      }
+    if (!embla) return
 
+    const onSelect = () => {
+      setSelectedIndex(embla.selectedSnap())
+      setPrevBtnEnabled(embla.canGoToPrev())
+      setNextBtnEnabled(embla.canGoToNext())
       setScrollSnaps(embla.snapList())
-      embla.on('select', onSelect)
-      onSelect()
+    }
+
+    embla.on('select', onSelect)
+    embla.on('reinit', onSelect)
+    onSelect()
+
+    return () => {
+      embla.off('select', onSelect)
+      embla.off('reinit', onSelect)
     }
   }, [embla])
 
@@ -99,11 +105,11 @@ const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => 
         </div>
         <div className="embla__dots">
           {scrollSnaps.map((snap, index) => (
-            <DotButton selected={index === selectedIndex} onClick={() => goTo(index)} key={index} />
+            <DotButton selected={index === selectedIndex} onClick={() => scrollTo(index)} key={index} />
           ))}
         </div>
-        <PrevButton onClick={goToPrev} enabled={prevBtnEnabled} />
-        <NextButton onClick={goToNext} enabled={nextBtnEnabled} />
+        <PrevButton onClick={scrollPrev} enabled={prevBtnEnabled} />
+        <NextButton onClick={scrollNext} enabled={nextBtnEnabled} />
       </div>
     </>
   )

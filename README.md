@@ -27,7 +27,7 @@
 First you need to follow the [installation instructions for Embla Carousel](https://github.com/davidcetinkaya/embla-carousel#installation), after that you can add wheel support:
 
 ```sh
-yarn add embla-carousel-wheel-gestures # npm install --save embla-carousel-wheel-gestures
+yarn add embla-carousel embla-carousel-wheel-gestures # npm install --save embla-carousel embla-carousel-wheel-gestures
 ```
 
 ### JavaScript / TypeScript
@@ -37,15 +37,13 @@ import EmblaCarousel from 'embla-carousel'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 
 // initialize Embla Carousel
-const embla = EmblaCarousel(emblaNode, options, [
-  WheelGesturesPlugin()
-])
+const embla = EmblaCarousel(emblaNode, options, [WheelGesturesPlugin()])
 ```
 
 ### React
 
 ```js
-import { useEmblaCarousel } from 'embla-carousel-react'
+import useEmblaCarousel from 'embla-carousel-react'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 
 const EmblaCarouselComponent = ({ children }) => {
@@ -56,6 +54,8 @@ const EmblaCarouselComponent = ({ children }) => {
   // ...
 }
 ```
+
+With Embla Carousel v9, this plugin safely bails during SSR and attaches wheel listeners when the client hydrates.
 
 ## Examples
 
