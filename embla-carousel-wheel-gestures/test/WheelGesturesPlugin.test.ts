@@ -81,8 +81,8 @@ describe('WheelGesturesPlugin', () => {
     // Mock embla carousel
     mockEmbla = {
       containerNode: jest.fn(() => mockContainerNode),
-      canScrollNext: jest.fn(() => true),
-      canScrollPrev: jest.fn(() => true),
+      canGoToNext: jest.fn(() => true),
+      canGoToPrev: jest.fn(() => true),
       internalEngine: jest.fn(() => mockEngine),
       on: jest.fn(),
       off: jest.fn(),
@@ -368,7 +368,7 @@ describe('WheelGesturesPlugin', () => {
     })
 
     it('should accumulate boundary movement when at boundary', () => {
-      mockEmbla.canScrollNext.mockReturnValue(false)
+      mockEmbla.canGoToNext.mockReturnValue(false)
 
       const boundaryState: WheelEventState = {
         axisDelta: [-50, 2], // scrolling next but can't scroll
@@ -387,7 +387,7 @@ describe('WheelGesturesPlugin', () => {
 
     it('should block gesture when boundary threshold exceeded', () => {
       // Set up boundary condition - can't scroll next and scrollProgress at end
-      mockEmbla.canScrollNext.mockReturnValue(false)
+      mockEmbla.canGoToNext.mockReturnValue(false)
       mockEmbla.scrollProgress.mockReturnValue(1) // at the end
 
       // Start a new gesture since beforeEach already cleared mocks
@@ -420,7 +420,7 @@ describe('WheelGesturesPlugin', () => {
 
     it('should reset accumulation when not at boundary', () => {
       // First, accumulate some boundary movement
-      mockEmbla.canScrollNext.mockReturnValue(false)
+      mockEmbla.canGoToNext.mockReturnValue(false)
       const boundaryState: WheelEventState = {
         axisDelta: [-50, 2],
         axisMovement: [10, 2],
@@ -433,7 +433,7 @@ describe('WheelGesturesPlugin', () => {
       wheelHandler(boundaryState)
 
       // Then allow scrolling again
-      mockEmbla.canScrollNext.mockReturnValue(true)
+      mockEmbla.canGoToNext.mockReturnValue(true)
       const normalState: WheelEventState = {
         axisDelta: [-10, 2],
         axisMovement: [20, 4],
@@ -451,7 +451,7 @@ describe('WheelGesturesPlugin', () => {
 
     it('should unblock boundary when gesture ends', () => {
       // Block boundary first
-      mockEmbla.canScrollNext.mockReturnValue(false)
+      mockEmbla.canGoToNext.mockReturnValue(false)
       const boundaryState: WheelEventState = {
         axisDelta: [-500, 2],
         axisMovement: [10, 2],
