@@ -57,7 +57,7 @@
   },
   "homepage": "https://github.com/xiel/embla-carousel-wheel-gestures#readme",
   "peerDependencies": {
-    "embla-carousel": "^9.0.0-rc01"
+    "embla-carousel": "^9.0.0 || ~9.0.0-rc01"
   },
   "dependencies": {
     "wheel-gestures": "^2.2.5"
