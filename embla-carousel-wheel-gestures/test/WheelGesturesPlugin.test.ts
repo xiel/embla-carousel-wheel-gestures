@@ -86,6 +86,10 @@ describe('WheelGesturesPlugin', () => {
       on: jest.fn(),
       off: jest.fn(),
       scrollProgress: jest.fn(() => 0.5),
+      goToNext: jest.fn(),
+      goToPrev: jest.fn(),
+      canGoToNext: jest.fn(() => true),
+      canGoToPrev: jest.fn(() => true),
     } as any
 
     // Mock options handler
@@ -887,6 +891,117 @@ describe('WheelGesturesPlugin', () => {
       handler(mockState)
 
       expect(mockParentNode.classList.add).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('Step Mode (wheelStep)', () => {
+    let wheelHandler: (state: WheelEventState) => void
+    let settleHandler: any
+
+    // negative primary-axis delta scrolls towards the next slide (reverseSign)
+    const wheelState = (primaryDelta: number, overrides: Partial<WheelEventState> = {}): WheelEventState =>
+      ({
+        axisDelta: [primaryDelta, 0],
+        axisMovement: [primaryDelta, 0],
+        isMomentum: false,
+        isEnding: false,
+        previous: null,
+        event: new WheelEvent('wheel'),
+        ...overrides,
+      } as any)
+
+    function initStepPlugin(wheelStep = 40) {
+      const WheelGestures = require('wheel-gestures').default
+      const mockWheelGestures = WheelGestures()
+
+      const plugin = WheelGesturesPlugin({ wheelStep })
+      plugin.init(mockEmbla, mockOptionsHandler)
+
+      wheelHandler = mockWheelGestures.on.mock.calls.find((call: any) => call[0] === 'wheel')[1]
+      const settleCall = mockEmbla.on.mock.calls.find((call: any) => call[0] === 'settle')
+      settleHandler = settleCall && settleCall[1]
+    }
+
+    it('registers a settle listener only when wheelStep is set', () => {
+      WheelGesturesPlugin({ wheelStep: 40 }).init(mockEmbla, mockOptionsHandler)
+      expect(mockEmbla.on).toHaveBeenCalledWith('settle', expect.any(Function))
+
+      jest.clearAllMocks()
+
+      WheelGesturesPlugin().init(mockEmbla, mockOptionsHandler)
+      expect(mockEmbla.on).not.toHaveBeenCalledWith('settle', expect.any(Function))
+    })
+
+    it('advances exactly one slide once accumulated distance crosses the step', () => {
+      initStepPlugin(40)
+
+      wheelHandler(wheelState(-30))
+      expect(mockEmbla.goToNext).not.toHaveBeenCalled()
+
+      wheelHandler(wheelState(-30)) // accumulated 60 >= 40
+      expect(mockEmbla.goToNext).toHaveBeenCalledTimes(1)
+      expect(mockEmbla.goToPrev).not.toHaveBeenCalled()
+    })
+
+    it('steps backwards on positive (reverse) delta', () => {
+      initStepPlugin(40)
+
+      wheelHandler(wheelState(50))
+      expect(mockEmbla.goToPrev).toHaveBeenCalledTimes(1)
+      expect(mockEmbla.goToNext).not.toHaveBeenCalled()
+    })
+
+    it('does not synthesise drag mouse events in step mode', () => {
+      initStepPlugin(40)
+
+      wheelHandler(wheelState(-100))
+
+      expect(mockContainerNode.dispatchEvent).not.toHaveBeenCalled()
+      expect(mockParentNode.classList.add).not.toHaveBeenCalled()
+    })
+
+    it('locks until settle, then spends the leftover distance', () => {
+      initStepPlugin(40)
+
+      wheelHandler(wheelState(-100)) // step once, 60px leftover, locked
+      expect(mockEmbla.goToNext).toHaveBeenCalledTimes(1)
+
+      wheelHandler(wheelState(-10)) // still locked → no extra step
+      expect(mockEmbla.goToNext).toHaveBeenCalledTimes(1)
+
+      settleHandler() // unlock → leftover (70px) spends another step
+      expect(mockEmbla.goToNext).toHaveBeenCalledTimes(2)
+    })
+
+    it('ignores momentum so one flick advances one slide', () => {
+      initStepPlugin(40)
+
+      wheelHandler(wheelState(-500, { isMomentum: true }))
+
+      expect(mockEmbla.goToNext).not.toHaveBeenCalled()
+    })
+
+    it('releases to the page at the carousel edge', () => {
+      mockEmbla.scrollProgress.mockReturnValue(1) // at the end, cannot go next
+      initStepPlugin(40)
+
+      wheelHandler(wheelState(-100)) // scrolling next at the boundary
+
+      expect(mockEmbla.goToNext).not.toHaveBeenCalled()
+    })
+
+    it('detaches the settle listener on destroy', () => {
+      const WheelGestures = require('wheel-gestures').default
+      const mockWheelGestures = WheelGestures()
+      const mockOff = jest.fn()
+      mockWheelGestures.observe.mockReturnValue(jest.fn())
+      mockWheelGestures.on.mockReturnValue(mockOff)
+
+      const plugin = WheelGesturesPlugin({ wheelStep: 40 })
+      plugin.init(mockEmbla, mockOptionsHandler)
+      plugin.destroy()
+
+      expect(mockEmbla.off).toHaveBeenCalledWith('settle', expect.any(Function))
     })
   })
 })

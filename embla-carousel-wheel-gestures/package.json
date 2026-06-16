@@ -93,6 +93,10 @@
         "maxSize": "3kB"
       },
       {
+        "path": "dist/embla-carousel-wheel-gestures.umd.js",
+        "maxSize": "3.5kB"
+      },
+      {
         "path": "dist/embla-carousel-wheel-gestures.umd.development.js",
         "maxSize": "7kB"
       }

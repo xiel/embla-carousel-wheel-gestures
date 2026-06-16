@@ -5,6 +5,13 @@ export type WheelGesturesPluginOptions = CreateOptionsType<{
   wheelDraggingClass: string
   forceWheelAxis?: 'x' | 'y'
   target?: Element
+  /**
+   * Advance exactly one slide for every `wheelStep` pixels of accumulated
+   * wheel movement, instead of mapping the wheel 1:1 onto a drag. Lower values
+   * feel snappier (fewer pixels per slide), higher values calmer. When unset
+   * (the default) the original drag-style behaviour is kept untouched.
+   */
+  wheelStep?: number
 }>
 
 type WheelGesturesPluginType = CreatePluginType<{}, WheelGesturesPluginOptions>
@@ -15,6 +22,7 @@ const defaultOptions: WheelGesturesPluginOptions = {
   wheelDraggingClass: 'is-wheel-dragging',
   forceWheelAxis: undefined,
   target: undefined,
+  wheelStep: undefined,
 }
 
 WheelGesturesPlugin.globalOptions = undefined as WheelGesturesPluginType['options'] | undefined
@@ -36,6 +44,8 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
 
     const targetNode = options.target ?? (embla.containerNode().parentNode as Element)
     const wheelAxis = options.forceWheelAxis ?? engine.options.axis
+    const wheelStep = Math.max(0, options.wheelStep || 0)
+    const stepMode = wheelStep > 0
     const wheelGestures = WheelGestures({
       preventWheelAction: wheelAxis,
       reverseSign: [true, true, false],
@@ -53,9 +63,13 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
     let overBoundaryAccumulation = 0
     let scrollBoundaryThreshold = 0
     let blockedWaitUntilGestureEnd = false
+    let stepAccumulation = 0
+    let stepLocked = false
 
     updateSizeRelatedVariables()
     embla.on('resize', updateSizeRelatedVariables)
+    // Released on 'settle' so a queued step can't retarget Embla mid-animation.
+    if (stepMode) embla.on('settle', releaseStep)
 
     function wheelGestureStarted(state: WheelEventState) {
       try {
@@ -198,7 +212,44 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
       return false
     }
 
+    // Step mode: instead of synthesising a 1:1 drag, accumulate wheel distance
+    // and snap exactly one slide each time it crosses `wheelStep` pixels. The
+    // lock (released on 'settle') stops a second goTo from retargeting Embla
+    // mid-animation; leftover distance carries over, so input is never lost.
+    function step() {
+      if (stepLocked || Math.abs(stepAccumulation) < wheelStep) return
+
+      const goNext = stepAccumulation < 0
+      if (goNext ? !embla.canGoToNext() : !embla.canGoToPrev()) {
+        stepAccumulation = 0
+        return
+      }
+
+      stepAccumulation -= Math.sign(stepAccumulation) * wheelStep
+      stepLocked = true
+      if (goNext) embla.goToNext()
+      else embla.goToPrev()
+    }
+
+    function releaseStep() {
+      stepLocked = false
+      step()
+    }
+
     function handleWheel(state: WheelEventState) {
+      if (stepMode) {
+        // Ignore momentum so a single flick advances a single slide; release to
+        // the page at the carousel edges, otherwise accumulate and step.
+        if (state.isMomentum) return
+        const { isAtBoundary, primaryAxisDelta } = checkIfAtBoundary(state)
+        if (isAtBoundary) stepAccumulation = 0
+        else {
+          stepAccumulation += primaryAxisDelta
+          step()
+        }
+        return
+      }
+
       const {
         axisDelta: [deltaX, deltaY],
       } = state
@@ -231,6 +282,7 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
       unobserveTargetNode()
       offWheel()
       embla.off('resize', updateSizeRelatedVariables)
+      if (stepMode) embla.off('settle', releaseStep)
       removeNativeMouseEventListeners()
     }
   }
