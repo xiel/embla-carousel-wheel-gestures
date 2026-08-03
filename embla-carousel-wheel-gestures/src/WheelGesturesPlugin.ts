@@ -53,6 +53,7 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
     let overBoundaryAccumulation = 0
     let scrollBoundaryThreshold = 0
     let blockedWaitUntilGestureEnd = false
+    let movementEventCount = 0
 
     updateSizeRelatedVariables()
     embla.on('resize', updateSizeRelatedVariables)
@@ -73,6 +74,7 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
 
       isStarted = true
       overBoundaryAccumulation = 0
+      movementEventCount = 0
       addNativeMouseEventListeners()
 
       if (options.wheelDraggingClass) {
@@ -222,7 +224,20 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
 
       if (isEndingOrRelease) {
         wheelGestureEnded(state)
+
+        // a gesture of one wheel event has no measurable drag speed, so embla would
+        // always settle back on the slide the gesture started on
+        if (movementEventCount === 1 && !engine.options.dragFree) {
+          const [movementX, movementY] = state.axisMovement
+
+          if ((wheelAxis === 'x' ? movementX : movementY) < 0) {
+            embla.goToNext()
+          } else {
+            embla.goToPrev()
+          }
+        }
       } else {
+        movementEventCount += 1
         dispatchEvent(createRelativeMouseEvent('mousemove', state))
       }
     }

@@ -86,6 +86,8 @@ describe('WheelGesturesPlugin', () => {
       on: jest.fn(),
       off: jest.fn(),
       scrollProgress: jest.fn(() => 0.5),
+      goToNext: jest.fn(),
+      goToPrev: jest.fn(),
     } as any
 
     // Mock options handler
@@ -360,6 +362,64 @@ describe('WheelGesturesPlugin', () => {
 
       expect(mockContainerNode.dispatchEvent).toHaveBeenCalled()
       expect(mockParentNode.classList.remove).toHaveBeenCalledWith('is-wheel-dragging')
+    })
+
+    // a gesture made of one wheel event has no measurable drag speed, so embla
+    // would always snap back to the slide the gesture started on
+    function singleWheelEventGesture(primaryAxisDelta: number) {
+      const wheelState: WheelEventState = {
+        axisDelta: [primaryAxisDelta, 0],
+        axisMovement: [primaryAxisDelta, 0],
+        isMomentum: false,
+        isEnding: false,
+        previous: null,
+        event: new WheelEvent('wheel'),
+      } as any
+
+      const endState: WheelEventState = {
+        axisDelta: [0, 0],
+        axisMovement: [primaryAxisDelta, 0],
+        isMomentum: false,
+        isEnding: true,
+        previous: wheelState,
+        event: new WheelEvent('wheel'),
+      } as any
+
+      return [wheelState, endState]
+    }
+
+    it('should scroll to the next slide when a single wheel event scrolled forward', () => {
+      singleWheelEventGesture(-120).forEach(wheelHandler)
+
+      expect(mockEmbla.goToNext).toHaveBeenCalled()
+      expect(mockEmbla.goToPrev).not.toHaveBeenCalled()
+    })
+
+    it('should scroll to the previous slide when a single wheel event scrolled back', () => {
+      singleWheelEventGesture(120).forEach(wheelHandler)
+
+      expect(mockEmbla.goToPrev).toHaveBeenCalled()
+      expect(mockEmbla.goToNext).not.toHaveBeenCalled()
+    })
+
+    it('should not scroll when the gesture had more than one wheel event', () => {
+      const [wheelState, endState] = singleWheelEventGesture(-120)
+
+      wheelHandler(wheelState)
+      wheelHandler({ ...wheelState, axisMovement: [-240, 0] } as any)
+      wheelHandler(endState)
+
+      expect(mockEmbla.goToNext).not.toHaveBeenCalled()
+      expect(mockEmbla.goToPrev).not.toHaveBeenCalled()
+    })
+
+    it('should not scroll a dragFree carousel, which keeps the position it was dragged to', () => {
+      mockEngine.options.dragFree = true
+
+      singleWheelEventGesture(-120).forEach(wheelHandler)
+
+      expect(mockEmbla.goToNext).not.toHaveBeenCalled()
+      expect(mockEmbla.goToPrev).not.toHaveBeenCalled()
     })
   })
 
