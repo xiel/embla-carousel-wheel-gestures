@@ -1,892 +1,320 @@
-import { EmblaCarouselType, OptionsHandlerType } from 'embla-carousel'
-import { WheelEventState } from 'wheel-gestures'
+import EmblaCarousel, { EmblaCarouselType, EmblaOptionsType } from 'embla-carousel'
+import WheelGestures, { WheelEventState, VectorXYZ } from 'wheel-gestures'
 
-import { WheelGesturesPlugin } from '../src'
+import { WheelGesturesPlugin, WheelGesturesPluginOptions } from '../src'
 
-// Mock wheel-gestures
-jest.mock('wheel-gestures', () => {
-  const mockWheelGestures = {
-    observe: jest.fn(() => jest.fn()), // returns unobserve function
-    on: jest.fn(() => jest.fn()), // returns off function
-  }
-  return {
-    __esModule: true,
-    default: jest.fn(() => mockWheelGestures),
-  }
-})
-
-// Mock DOM methods
-Object.defineProperty(global, 'MouseEvent', {
-  writable: true,
-  value: jest.fn().mockImplementation((type, options) => ({
-    type,
-    ...options,
-    clientX: options?.clientX || 0,
-    clientY: options?.clientY || 0,
-    screenX: options?.screenX || 0,
-    screenY: options?.screenY || 0,
-    movementX: options?.movementX || 0,
-    movementY: options?.movementY || 0,
-    button: options?.button || 0,
-    bubbles: options?.bubbles || false,
-    cancelable: options?.cancelable || false,
-    composed: options?.composed || false,
-    isTrusted: true,
-    stopImmediatePropagation: jest.fn(),
+const mockWheelHandlers: Array<(state: WheelEventState) => void> = []
+jest.mock('wheel-gestures', () => ({
+  __esModule: true,
+  default: jest.fn(() => ({
+    observe: jest.fn(() => jest.fn()),
+    on: jest.fn((_name, handler) => {
+      mockWheelHandlers.push(handler)
+      return jest.fn()
+    }),
   })),
+}))
+
+let carousels: EmblaCarouselType[] = []
+
+beforeEach(() => {
+  jest.useFakeTimers()
+  jest.clearAllMocks()
+  mockWheelHandlers.length = 0
+  WheelGesturesPlugin.globalOptions = undefined
+  Object.defineProperty(window, 'matchMedia', {
+    configurable: true,
+    value: jest.fn(() => ({ matches: false, addEventListener: jest.fn(), removeEventListener: jest.fn() })),
+  })
+  Object.defineProperty(window, 'IntersectionObserver', {
+    configurable: true,
+    value: jest.fn(() => ({ observe: jest.fn(), disconnect: jest.fn() })),
+  })
 })
 
-describe('WheelGesturesPlugin', () => {
-  let mockEmbla: jest.Mocked<EmblaCarouselType>
-  let mockOptionsHandler: jest.Mocked<OptionsHandlerType>
-  let mockContainerNode: HTMLElement
-  let mockParentNode: HTMLElement
-  let mockEngine: any
+afterEach(() => {
+  carousels.forEach((embla) => embla.destroy())
+  carousels = []
+  document.body.innerHTML = ''
+  jest.restoreAllMocks()
+  jest.useRealTimers()
+})
 
-  beforeEach(() => {
-    jest.clearAllMocks()
-
-    // Reset global options to prevent test interference
-    WheelGesturesPlugin.globalOptions = undefined
-
-    // Create mock DOM elements
-    mockContainerNode = document.createElement('div')
-    mockParentNode = document.createElement('div')
-    mockParentNode.appendChild(mockContainerNode)
-
-    // Mock container node methods
-    mockContainerNode.dispatchEvent = jest.fn()
-    Object.defineProperty(mockContainerNode, 'classList', {
-      value: {
-        add: jest.fn(),
-        remove: jest.fn(),
-      },
-      writable: true,
+function setup(options: EmblaOptionsType = {}, pluginOptions: Partial<WheelGesturesPluginOptions> = {}) {
+  const root = document.createElement('div')
+  const container = document.createElement('div')
+  root.appendChild(container)
+  document.body.appendChild(root)
+  const vertical = options.axis === 'y'
+  const rtl = options.direction === 'rtl'
+  function size(node: HTMLElement, index = 0) {
+    Object.defineProperties(node, {
+      offsetWidth: { configurable: true, value: 600 },
+      offsetHeight: { configurable: true, value: 400 },
+      offsetLeft: { configurable: true, value: vertical ? 0 : index * 600 * (rtl ? -1 : 1) },
+      offsetTop: { configurable: true, value: vertical ? index * 400 : 0 },
+      offsetParent: { configurable: true, value: document.body },
     })
-
-    Object.defineProperty(mockParentNode, 'classList', {
-      value: {
-        add: jest.fn(),
-        remove: jest.fn(),
-      },
-      writable: true,
-    })
-
-    // Mock engine
-    mockEngine = {
-      isSsr: false,
-      options: { axis: 'x', skipSnaps: false, dragFree: false },
-      containerRect: { width: 800, height: 600 },
+  }
+  size(root)
+  size(container)
+  for (let index = 0; index < 5; index++) {
+    const slide = document.createElement('div')
+    size(slide, index)
+    slide.style.margin = '0px'
+    container.appendChild(slide)
+  }
+  const plugin = WheelGesturesPlugin(pluginOptions)
+  const embla = EmblaCarousel(root, { startSnap: 1, resize: false, slideChanges: false, ...options }, [plugin])
+  carousels.push(embla)
+  const engine = embla.internalEngine()
+  let movement: VectorXYZ = [0, 0, 0]
+  let previous: WheelEventState | undefined
+  let handler = mockWheelHandlers[mockWheelHandlers.length - 1]
+  function send(delta: VectorXYZ, flags: Partial<WheelEventState> = {}) {
+    movement = movement.map((value, i) => value + delta[i]) as VectorXYZ
+    const state: WheelEventState = {
+      isStart: !previous,
+      isMomentum: false,
+      isEnding: false,
+      isMomentumCancel: false,
+      axisDelta: delta,
+      axisMovement: movement,
+      axisMovementProjection: movement,
+      axisVelocity: [0, 0, 0],
+      event: new WheelEvent('wheel'),
+      previous,
+      ...flags,
     }
+    handler(state)
+    previous = state
+  }
+  function finish() {
+    send([0, 0, 0], { isEnding: true })
+  }
+  function newGesture() {
+    movement = [0, 0, 0]
+    previous = undefined
+    handler = mockWheelHandlers[mockWheelHandlers.length - 1]
+  }
+  return { root, container, plugin, embla, engine, send, finish, newGesture }
+}
 
-    // Mock embla carousel
-    mockEmbla = {
-      containerNode: jest.fn(() => mockContainerNode),
-      internalEngine: jest.fn(() => mockEngine),
-      on: jest.fn(),
-      off: jest.fn(),
-      scrollProgress: jest.fn(() => 0.5),
+test('moves the real engine without synthetic mouse events or pointer events', () => {
+  const { root, container, embla, engine, send, finish } = setup()
+  const domEvent = jest.fn()
+  const pointerEvent = jest.fn()
+  for (const name of ['mousedown', 'mousemove', 'mouseup']) container.addEventListener(name, domEvent)
+  embla
+    .on('pointerdown', pointerEvent)
+    .on('pointermove', pointerEvent)
+    .on('pointerup', pointerEvent)
+  send([-40, 0, 0])
+  expect(engine.target.get()).toBe(-640)
+  expect(root.classList.contains('is-wheel-dragging')).toBe(true)
+  expect(engine.dragHandler.pointerDown()).toBe(false)
+  jest.advanceTimersByTime(32)
+  expect(engine.location.get()).toBeLessThan(-600)
+  expect(container.style.transform).not.toBe('translate3d(-600px,0px,0px)')
+  finish()
+  expect(root.classList.contains('is-wheel-dragging')).toBe(false)
+  expect(domEvent).not.toHaveBeenCalled()
+  expect(pointerEvent).not.toHaveBeenCalled()
+})
+
+test.each([
+  [{ axis: 'x' }, {}, [-40, 0, 0], -640],
+  [{ axis: 'y' }, {}, [0, -40, 0], -440],
+  [{ axis: 'x' }, { forceWheelAxis: 'y' }, [0, -40, 0], -640],
+  [{ axis: 'y' }, { forceWheelAxis: 'x' }, [-40, 0, 0], -440],
+  [{ axis: 'x', direction: 'rtl' }, {}, [40, 0, 0], -640],
+] as const)('maps axes and direction: %j %j', (options, pluginOptions, delta, expected) => {
+  const { engine, send } = setup(options, pluginOptions)
+  send([...delta])
+  expect(engine.target.get()).toBe(expected)
+})
+
+test('ignores cross-axis and momentum-only input', () => {
+  const { root, engine, send } = setup()
+  send([0, -100, 0])
+  send([-100, 0, 0], { isMomentum: true })
+  expect(engine.target.get()).toBe(-600)
+  expect(root.classList.contains('is-wheel-dragging')).toBe(false)
+})
+
+test('keeps Embla release force and snap behavior on a flick', () => {
+  const { engine, embla, send } = setup()
+  send([-10, 0, 0])
+  jest.advanceTimersByTime(16)
+  send([-40, 0, 0])
+  jest.advanceTimersByTime(16)
+  send([-20, 0, 0], { isMomentum: true })
+  expect(engine.target.get()).toBe(-1200)
+  expect(embla.selectedSnap()).toBe(2)
+  expect(engine.scrollBody.duration()).toBe(25)
+  const releasedTarget = engine.target.get()
+  send([-200, 0, 0], { isMomentum: true })
+  expect(engine.target.get()).toBe(releasedTarget)
+  jest.advanceTimersByTime(2000)
+  expect(engine.location.get()).toBeCloseTo(-1200, 1)
+})
+
+test.each([true, 'snap'] as const)('honors dragFree=%s when releasing', (dragFree) => {
+  const { engine, send } = setup({ dragFree })
+  send([-10, 0, 0])
+  jest.advanceTimersByTime(16)
+  send([-40, 0, 0])
+  jest.advanceTimersByTime(16)
+  send([-10, 0, 0], { isMomentum: true })
+  if (dragFree === true) expect(engine.target.get()).toBeCloseTo(-650 - (50 / 32) * 500)
+  else expect(engine.scrollSnaps).toContain(engine.target.get())
+})
+
+test('expires release velocity after a pause', () => {
+  const { engine, send, finish } = setup()
+  send([-40, 0, 0])
+  jest.advanceTimersByTime(400)
+  finish()
+  expect(engine.target.get()).toBe(-600)
+})
+
+test.each([false, true])('limits displacement when skipSnaps=%s', (skipSnaps) => {
+  const { engine, send } = setup({ skipSnaps })
+  send([-1400, 0, 0])
+  expect(engine.target.get()).toBe(skipSnaps ? -2000 : -1200)
+})
+
+test.each(['x', 'y'] as const)('damps only the %s scroll axis at the start boundary', (axis) => {
+  const { engine, send } = setup({ axis, startSnap: 0 })
+  send(axis === 'x' ? [60, 0, 0] : [0, 60, 0])
+  expect(engine.target.get()).toBeCloseTo(axis === 'x' ? 39 : 36)
+  engine.animation.update()
+  expect(engine.target.get()).toBeGreaterThan(0)
+})
+
+test('looping input is not blocked at the first snap', () => {
+  const { engine, root, send } = setup({ loop: true, startSnap: 0, skipSnaps: true })
+  expect(engine.options.loop).toBe(true)
+  send([400, 0, 0])
+  expect(engine.target.get()).toBe(400)
+  expect(root.classList.contains('is-wheel-dragging')).toBe(true)
+})
+
+test('boundary blocking resets when the gesture ends', () => {
+  const { root, send, finish, newGesture } = setup({ startSnap: 0 })
+  send([400, 0, 0])
+  expect(root.classList.contains('is-wheel-dragging')).toBe(false)
+  send([-100, 0, 0])
+  expect(root.classList.contains('is-wheel-dragging')).toBe(false)
+  finish()
+  newGesture()
+  send([-100, 0, 0])
+  expect(root.classList.contains('is-wheel-dragging')).toBe(true)
+})
+
+test('works with mouse dragging disabled', () => {
+  const { engine, send } = setup({ draggable: false })
+  send([-40, 0, 0])
+  expect(engine.target.get()).toBe(-640)
+})
+
+test('a real mouse drag can take over and wheel input cannot hijack it', () => {
+  const { root, engine, send, finish, newGesture } = setup()
+  send([-40, 0, 0])
+  root.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, button: 0, clientX: 100 }))
+  expect(engine.dragHandler.pointerDown()).toBe(true)
+  expect(root.classList.contains('is-wheel-dragging')).toBe(false)
+  const target = engine.target.get()
+  send([-40, 0, 0])
+  expect(engine.target.get()).toBe(target)
+  document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, clientX: 100 }))
+  finish()
+  newGesture()
+  send([-40, 0, 0])
+  expect(root.classList.contains('is-wheel-dragging')).toBe(true)
+})
+
+test('simultaneous carousels do not dispatch movement into each other', () => {
+  const first = setup()
+  const second = setup()
+  first.send([-60, 0, 0])
+  const target = first.engine.target.get()
+  second.send([-30, 0, 0])
+  expect(first.engine.target.get()).toBe(target)
+  expect(second.engine.target.get()).toBe(-630)
+  second.finish()
+  expect(first.root.classList.contains('is-wheel-dragging')).toBe(true)
+})
+
+test('destroy removes observers, class and engine hooks without restarting animation', () => {
+  const { root, engine, plugin, send } = setup()
+  const wrappedConstrain = engine.scrollBounds.constrain
+  const wheel = jest.mocked(WheelGestures).mock.results[0].value
+  const unobserve = wheel.observe.mock.results[0].value
+  const off = wheel.on.mock.results[0].value
+  send([-40, 0, 0])
+  const start = jest.spyOn(engine.animation, 'start')
+  plugin.destroy()
+  plugin.destroy()
+  expect(start).not.toHaveBeenCalled()
+  expect(unobserve).toHaveBeenCalledTimes(1)
+  expect(off).toHaveBeenCalledTimes(1)
+  expect(root.classList.contains('is-wheel-dragging')).toBe(false)
+  expect(engine.scrollBounds.constrain).not.toBe(wrappedConstrain)
+})
+
+test('reinit releases the old engine and connects the new one', () => {
+  const { embla, root, engine, send, newGesture } = setup()
+  const oldConstrain = engine.scrollBounds.constrain
+  send([-40, 0, 0])
+  embla.reInit()
+  expect(root.classList.contains('is-wheel-dragging')).toBe(false)
+  expect(engine.scrollBounds.constrain).not.toBe(oldConstrain)
+  newGesture()
+  send([-30, 0, 0])
+  expect(embla.internalEngine().target.get()).toBe(-630)
+})
+
+test('honors global options, custom target and an empty dragging class', () => {
+  WheelGesturesPlugin.globalOptions = { forceWheelAxis: 'y' }
+  const { engine, send } = setup({}, { target: document.documentElement, wheelDraggingClass: '' })
+  send([0, -40, 0])
+  expect(engine.target.get()).toBe(-640)
+  expect(document.documentElement.className).toBe('')
+  const wheel = jest.mocked(WheelGestures).mock.results[0].value
+  expect(wheel.observe).toHaveBeenCalledWith(document.documentElement)
+})
+
+test('inactive and SSR initialization does not observe the DOM', () => {
+  setup({}, { active: false })
+  const plugin = WheelGesturesPlugin()
+  plugin.init(
+    { internalEngine: () => ({ isSsr: true }) } as any,
+    {
+      mergeOptions: (...options: any[]) => Object.assign({}, ...options),
+      optionsAtMedia: (options: any) => options,
     } as any
-
-    // Mock options handler
-    mockOptionsHandler = {
-      mergeOptions: jest.fn((base, user) => ({ ...base, ...user })),
-      optionsAtMedia: jest.fn((options) => options),
-    } as any
-
-    // Mock document methods
-    document.documentElement.addEventListener = jest.fn()
-    document.documentElement.removeEventListener = jest.fn()
-  })
-
-  afterEach(() => {
-    jest.restoreAllMocks()
-  })
-
-  describe('Plugin Creation', () => {
-    it('should create plugin with default options', () => {
-      const plugin = WheelGesturesPlugin()
-
-      expect(plugin.name).toBe('wheelGestures')
-      expect(plugin.options).toEqual({})
-      expect(typeof plugin.init).toBe('function')
-      expect(typeof plugin.destroy).toBe('function')
-    })
-
-    it('should create plugin with custom options', () => {
-      const customOptions = {
-        wheelDraggingClass: 'custom-dragging',
-        forceWheelAxis: 'y' as const,
-        target: mockParentNode,
-      }
-
-      const plugin = WheelGesturesPlugin(customOptions)
-
-      expect(plugin.options).toEqual(customOptions)
-    })
-
-    it('should return plugin interface', () => {
-      const plugin = WheelGesturesPlugin()
-
-      expect(plugin).toHaveProperty('name', 'wheelGestures')
-      expect(plugin).toHaveProperty('options')
-      expect(plugin).toHaveProperty('init')
-      expect(plugin).toHaveProperty('destroy')
-    })
-  })
-
-  describe('Plugin Initialization', () => {
-    it('should initialize with default options', () => {
-      const plugin = WheelGesturesPlugin()
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      expect(mockOptionsHandler.mergeOptions).toHaveBeenCalledTimes(2)
-      expect(mockOptionsHandler.optionsAtMedia).toHaveBeenCalled()
-      expect(mockEmbla.internalEngine).toHaveBeenCalled()
-    })
-
-    it('should use target from options if provided', () => {
-      const WheelGestures = require('wheel-gestures').default
-      const mockWheelGestures = WheelGestures()
-
-      const customTarget = document.createElement('div')
-      const plugin = WheelGesturesPlugin({ target: customTarget })
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      // Verify that the wheel gestures observer was called with the custom target
-      expect(mockWheelGestures.observe).toHaveBeenCalledWith(customTarget)
-    })
-
-    it('should use parent node as default target', () => {
-      const plugin = WheelGesturesPlugin()
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      expect(mockEmbla.containerNode).toHaveBeenCalled()
-    })
-
-    it('should setup wheel gestures observer', () => {
-      const WheelGestures = require('wheel-gestures').default
-      const plugin = WheelGesturesPlugin()
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      expect(WheelGestures).toHaveBeenCalledWith({
-        preventWheelAction: 'x',
-        reverseSign: [true, true, false],
-      })
-    })
-
-    it('should use forceWheelAxis when provided', () => {
-      const WheelGestures = require('wheel-gestures').default
-      const plugin = WheelGesturesPlugin({ forceWheelAxis: 'y' })
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      expect(WheelGestures).toHaveBeenCalledWith({
-        preventWheelAction: 'y',
-        reverseSign: [true, true, false],
-      })
-    })
-
-    it('should not initialize listeners during SSR', () => {
-      const WheelGestures = require('wheel-gestures').default
-
-      mockEngine.isSsr = true
-
-      const plugin = WheelGesturesPlugin()
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      expect(WheelGestures).not.toHaveBeenCalled()
-      expect(mockEmbla.on).not.toHaveBeenCalled()
-      expect(document.documentElement.addEventListener).not.toHaveBeenCalled()
-    })
-
-    it('should not initialize listeners when inactive', () => {
-      const WheelGestures = require('wheel-gestures').default
-
-      const plugin = WheelGesturesPlugin({ active: false })
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      expect(WheelGestures).not.toHaveBeenCalled()
-      expect(mockEmbla.on).not.toHaveBeenCalled()
-      expect(document.documentElement.addEventListener).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('Options Handling', () => {
-    it('should merge global options', () => {
-      WheelGesturesPlugin.globalOptions = { wheelDraggingClass: 'global-class' }
-      const plugin = WheelGesturesPlugin({ forceWheelAxis: 'y' })
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      expect(mockOptionsHandler.mergeOptions).toHaveBeenCalledWith(
-        expect.objectContaining({
-          active: true,
-          breakpoints: {},
-          wheelDraggingClass: 'is-wheel-dragging',
-          forceWheelAxis: undefined,
-          target: undefined,
-        }),
-        { wheelDraggingClass: 'global-class' }
-      )
-    })
-
-    it('should handle responsive options', () => {
-      const plugin = WheelGesturesPlugin()
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      expect(mockOptionsHandler.optionsAtMedia).toHaveBeenCalled()
-    })
-  })
-
-  describe('Wheel Event Handling', () => {
-    let plugin: any
-    let wheelHandler: (state: WheelEventState) => void
-
-    beforeEach(() => {
-      const WheelGestures = require('wheel-gestures').default
-      const mockWheelGestures = WheelGestures()
-
-      plugin = WheelGesturesPlugin()
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      // Get the wheel handler that was registered
-      wheelHandler = mockWheelGestures.on.mock.calls.find((call: any) => call[0] === 'wheel')[1]
-    })
-
-    it('should start wheel gesture when primary axis is dominant', () => {
-      const mockState: WheelEventState = {
-        axisDelta: [10, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(mockState)
-
-      expect(mockContainerNode.dispatchEvent).toHaveBeenCalled()
-      expect(mockParentNode.classList.add).toHaveBeenCalledWith('is-wheel-dragging')
-    })
-
-    it('should not start gesture when cross axis is dominant', () => {
-      const mockState: WheelEventState = {
-        axisDelta: [2, 10],
-        axisMovement: [2, 10],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(mockState)
-
-      expect(mockContainerNode.dispatchEvent).not.toHaveBeenCalled()
-    })
-
-    it('should not start gesture during momentum', () => {
-      const mockState: WheelEventState = {
-        axisDelta: [10, 2],
-        axisMovement: [10, 2],
-        isMomentum: true,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(mockState)
-
-      expect(mockContainerNode.dispatchEvent).not.toHaveBeenCalled()
-    })
-
-    it('should handle wheel gesture ending', () => {
-      // Start gesture first
-      const startState: WheelEventState = {
-        axisDelta: [10, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(startState)
-
-      // Clear previous calls
-      jest.clearAllMocks()
-
-      // End gesture
-      const endState: WheelEventState = {
-        axisDelta: [5, 1],
-        axisMovement: [15, 3],
-        isMomentum: false,
-        isEnding: true,
-        previous: startState,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(endState)
-
-      expect(mockContainerNode.dispatchEvent).toHaveBeenCalled()
-      expect(mockParentNode.classList.remove).toHaveBeenCalledWith('is-wheel-dragging')
-    })
-
-    it('should handle momentum release', () => {
-      // Start gesture first
-      const startState: WheelEventState = {
-        axisDelta: [10, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(startState)
-
-      // Clear previous calls
-      jest.clearAllMocks()
-
-      // Momentum release
-      const releaseState: WheelEventState = {
-        axisDelta: [5, 1],
-        axisMovement: [15, 3],
-        isMomentum: true,
-        isEnding: false,
-        previous: { ...startState, isMomentum: false },
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(releaseState)
-
-      expect(mockContainerNode.dispatchEvent).toHaveBeenCalled()
-      expect(mockParentNode.classList.remove).toHaveBeenCalledWith('is-wheel-dragging')
-    })
-  })
-
-  describe('Boundary Detection', () => {
-    let plugin: any
-    let wheelHandler: (state: WheelEventState) => void
-
-    beforeEach(() => {
-      const WheelGestures = require('wheel-gestures').default
-      const mockWheelGestures = WheelGestures()
-
-      plugin = WheelGesturesPlugin()
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      wheelHandler = mockWheelGestures.on.mock.calls.find((call: any) => call[0] === 'wheel')[1]
-
-      // Start a gesture first
-      const startState: WheelEventState = {
-        axisDelta: [10, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(startState)
-      jest.clearAllMocks()
-    })
-
-    it('should accumulate boundary movement when at boundary', () => {
-      mockEmbla.scrollProgress.mockReturnValue(1)
-
-      const boundaryState: WheelEventState = {
-        axisDelta: [-50, 2], // scrolling next but can't scroll
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(boundaryState)
-
-      // Should dispatch mousemove since we haven't exceeded threshold yet
-      expect(mockContainerNode.dispatchEvent).toHaveBeenCalled()
-    })
-
-    it('should block gesture when boundary threshold exceeded', () => {
-      // Set up boundary condition - scrollProgress at the end
-      mockEmbla.scrollProgress.mockReturnValue(1)
-
-      // Start a new gesture since beforeEach already cleared mocks
-      const startState: WheelEventState = {
-        axisDelta: [10, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(startState)
-      jest.clearAllMocks()
-
-      const boundaryState: WheelEventState = {
-        axisDelta: [-500, 2], // large movement exceeding threshold
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: startState,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(boundaryState)
-
-      // Should end gesture due to boundary threshold
-      expect(mockParentNode.classList.remove).toHaveBeenCalledWith('is-wheel-dragging')
-    })
-
-    it('should reset accumulation when not at boundary', () => {
-      // First, accumulate some boundary movement
-      mockEmbla.scrollProgress.mockReturnValue(1)
-      const boundaryState: WheelEventState = {
-        axisDelta: [-50, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(boundaryState)
-
-      // Then allow scrolling again
-      mockEmbla.scrollProgress.mockReturnValue(0.5)
-      const normalState: WheelEventState = {
-        axisDelta: [-10, 2],
-        axisMovement: [20, 4],
-        isMomentum: false,
-        isEnding: false,
-        previous: boundaryState,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(normalState)
-
-      // Should continue normally (accumulation reset)
-      expect(mockContainerNode.dispatchEvent).toHaveBeenCalled()
-    })
-
-    it('should unblock boundary when gesture ends', () => {
-      // Block boundary first
-      mockEmbla.scrollProgress.mockReturnValue(1)
-      const boundaryState: WheelEventState = {
-        axisDelta: [-500, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(boundaryState)
-
-      // Now end the gesture
-      const endState: WheelEventState = {
-        axisDelta: [0, 0],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: true,
-        previous: boundaryState,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(endState)
-
-      // Boundary should be unblocked for next gesture
-      expect(mockParentNode.classList.remove).toHaveBeenCalledWith('is-wheel-dragging')
-    })
-  })
-
-  describe('Mouse Event Creation', () => {
-    let plugin: any
-    let wheelHandler: (state: WheelEventState) => void
-
-    beforeEach(() => {
-      const WheelGestures = require('wheel-gestures').default
-      const mockWheelGestures = WheelGestures()
-
-      plugin = WheelGesturesPlugin()
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      wheelHandler = mockWheelGestures.on.mock.calls.find((call: any) => call[0] === 'wheel')[1]
-    })
-
-    it('should create mousedown event on gesture start', () => {
-      const mockState: WheelEventState = {
-        axisDelta: [10, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel', { clientX: 100, clientY: 200 }),
-      } as any
-
-      wheelHandler(mockState)
-
-      expect(MouseEvent).toHaveBeenCalledWith('mousedown', mockState.event)
-      expect(mockContainerNode.dispatchEvent).toHaveBeenCalled()
-    })
-
-    it('should create mousemove events during gesture', () => {
-      // Start gesture
-      const startState: WheelEventState = {
-        axisDelta: [10, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel', { clientX: 100, clientY: 200 }),
-      } as any
-
-      wheelHandler(startState)
-      jest.clearAllMocks()
-
-      // Continue gesture
-      const moveState: WheelEventState = {
-        axisDelta: [5, 1],
-        axisMovement: [15, 3],
-        isMomentum: false,
-        isEnding: false,
-        previous: startState,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(moveState)
-
-      expect(MouseEvent).toHaveBeenCalledWith(
-        'mousemove',
-        expect.objectContaining({
-          clientX: expect.any(Number),
-          clientY: expect.any(Number),
-          movementX: expect.any(Number),
-          movementY: expect.any(Number),
-          button: 0,
-          bubbles: true,
-          cancelable: true,
-          composed: true,
-        })
-      )
-    })
-
-    it('should create mouseup event on gesture end', () => {
-      // Start gesture
-      const startState: WheelEventState = {
-        axisDelta: [10, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(startState)
-      jest.clearAllMocks()
-
-      // End gesture
-      const endState: WheelEventState = {
-        axisDelta: [5, 1],
-        axisMovement: [15, 3],
-        isMomentum: false,
-        isEnding: true,
-        previous: startState,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(endState)
-
-      expect(MouseEvent).toHaveBeenCalledWith('mouseup', expect.any(Object))
-    })
-
-    it('should handle axis swapping when wheel axis differs from embla axis', () => {
-      mockEngine.options.axis = 'y'
-
-      const axisSwapPlugin = WheelGesturesPlugin({ forceWheelAxis: 'x' })
-      axisSwapPlugin.init(mockEmbla, mockOptionsHandler)
-
-      const WheelGestures = require('wheel-gestures').default
-      const mockWheelGestures = WheelGestures()
-      const handler = mockWheelGestures.on.mock.calls.find((call: any) => call[0] === 'wheel')[1]
-
-      const mockState: WheelEventState = {
-        axisDelta: [10, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      handler(mockState)
-
-      // Movement should be swapped
-      expect(MouseEvent).toHaveBeenCalledWith('mousedown', mockState.event)
-    })
-
-    it('should limit movement when skipSnaps is false', () => {
-      mockEngine.options.skipSnaps = false
-      mockEngine.options.dragFree = false
-
-      const skipSnapsPlugin = WheelGesturesPlugin()
-      skipSnapsPlugin.init(mockEmbla, mockOptionsHandler)
-
-      const WheelGestures = require('wheel-gestures').default
-      const mockWheelGestures = WheelGestures()
-      const handler = mockWheelGestures.on.mock.calls.find((call: any) => call[0] === 'wheel')[1]
-
-      // Start gesture
-      const startState: WheelEventState = {
-        axisDelta: [10, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      handler(startState)
-      jest.clearAllMocks()
-
-      // Large movement that should be limited
-      const moveState: WheelEventState = {
-        axisDelta: [5, 1],
-        axisMovement: [1000, 1000], // Very large movement
-        isMomentum: false,
-        isEnding: false,
-        previous: startState,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      handler(moveState)
-
-      // Movement should be limited to container dimensions
-      const mouseEventCall = (MouseEvent as jest.Mock).mock.calls.find((call) => call[0] === 'mousemove')
-      expect(mouseEventCall).toBeDefined()
-    })
-  })
-
-  describe('Legacy Browser Support', () => {
-    it('should handle MouseEvent constructor failure', () => {
-      // Mock MouseEvent to throw (simulating IE 10/11)
-      const originalMouseEvent = global.MouseEvent
-      global.MouseEvent = jest.fn().mockImplementation(() => {
-        throw new Error('MouseEvent not supported')
-      })
-
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation()
-
-      const plugin = WheelGesturesPlugin()
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      const WheelGestures = require('wheel-gestures').default
-      const mockWheelGestures = WheelGestures()
-      const handler = mockWheelGestures.on.mock.calls.find((call: any) => call[0] === 'wheel')[1]
-
-      const mockState: WheelEventState = {
-        axisDelta: [10, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      handler(mockState)
-
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Legacy browser requires events-polyfill'))
-
-      // Restore
-      global.MouseEvent = originalMouseEvent
-      consoleSpy.mockRestore()
-    })
-  })
-
-  describe('Native Mouse Event Prevention', () => {
-    let plugin: any
-    let wheelHandler: (state: WheelEventState) => void
-
-    beforeEach(() => {
-      const WheelGestures = require('wheel-gestures').default
-      const mockWheelGestures = WheelGestures()
-
-      plugin = WheelGesturesPlugin()
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      wheelHandler = mockWheelGestures.on.mock.calls.find((call: any) => call[0] === 'wheel')[1]
-
-      // Start a gesture to activate mouse event listeners
-      const startState: WheelEventState = {
-        axisDelta: [10, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(startState)
-    })
-
-    it('should add mouse event listeners on gesture start', () => {
-      expect(document.documentElement.addEventListener).toHaveBeenCalledWith('mousemove', expect.any(Function), true)
-      expect(document.documentElement.addEventListener).toHaveBeenCalledWith('mouseup', expect.any(Function), true)
-      expect(document.documentElement.addEventListener).toHaveBeenCalledWith('mousedown', expect.any(Function), true)
-    })
-
-    it('should remove mouse event listeners on gesture end', () => {
-      const endState: WheelEventState = {
-        axisDelta: [5, 1],
-        axisMovement: [15, 3],
-        isMomentum: false,
-        isEnding: true,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      wheelHandler(endState)
-
-      expect(document.documentElement.removeEventListener).toHaveBeenCalledWith('mousemove', expect.any(Function), true)
-      expect(document.documentElement.removeEventListener).toHaveBeenCalledWith('mouseup', expect.any(Function), true)
-      expect(document.documentElement.removeEventListener).toHaveBeenCalledWith('mousedown', expect.any(Function), true)
-    })
-  })
-
-  describe('Cleanup and Destruction', () => {
-    it('should safely destroy after SSR init', () => {
-      mockEngine.isSsr = true
-
-      const plugin = WheelGesturesPlugin()
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      expect(() => plugin.destroy()).not.toThrow()
-    })
-
-    it('should cleanup on destroy', () => {
-      const WheelGestures = require('wheel-gestures').default
-      const mockWheelGestures = WheelGestures()
-      const mockUnobserve = jest.fn()
-      const mockOff = jest.fn()
-
-      mockWheelGestures.observe.mockReturnValue(mockUnobserve)
-      mockWheelGestures.on.mockReturnValue(mockOff)
-
-      const plugin = WheelGesturesPlugin()
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      plugin.destroy()
-
-      expect(mockUnobserve).toHaveBeenCalled()
-      expect(mockOff).toHaveBeenCalled()
-    })
-
-    it('should remove event listeners on cleanup', () => {
-      const plugin = WheelGesturesPlugin()
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      // Start gesture to add listeners
-      const WheelGestures = require('wheel-gestures').default
-      const mockWheelGestures = WheelGestures()
-      const handler = mockWheelGestures.on.mock.calls.find((call: any) => call[0] === 'wheel')[1]
-
-      const startState: WheelEventState = {
-        axisDelta: [10, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      handler(startState)
-
-      plugin.destroy()
-
-      expect(document.documentElement.removeEventListener).toHaveBeenCalledWith('mousemove', expect.any(Function), true)
-    })
-  })
-
-  describe('CSS Class Management', () => {
-    it('should add dragging class on gesture start', () => {
-      const plugin = WheelGesturesPlugin({ wheelDraggingClass: 'custom-dragging' })
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      const WheelGestures = require('wheel-gestures').default
-      const mockWheelGestures = WheelGestures()
-      const handler = mockWheelGestures.on.mock.calls.find((call: any) => call[0] === 'wheel')[1]
-
-      const mockState: WheelEventState = {
-        axisDelta: [10, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      handler(mockState)
-
-      expect(mockParentNode.classList.add).toHaveBeenCalledWith('custom-dragging')
-    })
-
-    it('should remove dragging class on gesture end', () => {
-      const plugin = WheelGesturesPlugin({ wheelDraggingClass: 'custom-dragging' })
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      const WheelGestures = require('wheel-gestures').default
-      const mockWheelGestures = WheelGestures()
-      const handler = mockWheelGestures.on.mock.calls.find((call: any) => call[0] === 'wheel')[1]
-
-      // Start gesture
-      const startState: WheelEventState = {
-        axisDelta: [10, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      handler(startState)
-
-      // End gesture
-      const endState: WheelEventState = {
-        axisDelta: [5, 1],
-        axisMovement: [15, 3],
-        isMomentum: false,
-        isEnding: true,
-        previous: startState,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      handler(endState)
-
-      expect(mockParentNode.classList.remove).toHaveBeenCalledWith('custom-dragging')
-    })
-
-    it('should not manage CSS class when wheelDraggingClass is empty', () => {
-      const plugin = WheelGesturesPlugin({ wheelDraggingClass: '' })
-      plugin.init(mockEmbla, mockOptionsHandler)
-
-      const WheelGestures = require('wheel-gestures').default
-      const mockWheelGestures = WheelGestures()
-      const handler = mockWheelGestures.on.mock.calls.find((call: any) => call[0] === 'wheel')[1]
-
-      const mockState: WheelEventState = {
-        axisDelta: [10, 2],
-        axisMovement: [10, 2],
-        isMomentum: false,
-        isEnding: false,
-        previous: null,
-        event: new WheelEvent('wheel'),
-      } as any
-
-      handler(mockState)
-
-      expect(mockParentNode.classList.add).not.toHaveBeenCalled()
-    })
-  })
+  )
+  expect(WheelGestures).not.toHaveBeenCalled()
+  expect(() => plugin.destroy()).not.toThrow()
+})
+
+test('real wheel events reach only their observed carousel through wheel-gestures', () => {
+  const actualWheelGestures = jest.requireActual('wheel-gestures').default
+  jest
+    .mocked(WheelGestures)
+    .mockImplementationOnce(actualWheelGestures)
+    .mockImplementationOnce(actualWheelGestures)
+  const first = setup()
+  const second = setup()
+  const wheel = new WheelEvent('wheel', { deltaX: 60, bubbles: true, cancelable: true })
+  first.root.dispatchEvent(wheel)
+  expect(wheel.defaultPrevented).toBe(true)
+  expect(first.engine.target.get()).toBe(-660)
+  expect(second.engine.target.get()).toBe(-600)
+  expect(first.root.classList.contains('is-wheel-dragging')).toBe(true)
+  expect(second.root.classList.contains('is-wheel-dragging')).toBe(false)
+  jest.advanceTimersByTime(1000)
+  expect(first.root.classList.contains('is-wheel-dragging')).toBe(false)
+  expect(second.engine.target.get()).toBe(-600)
 })

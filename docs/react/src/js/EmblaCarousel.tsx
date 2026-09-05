@@ -10,6 +10,9 @@ const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => 
   const [axis, setAxis] = useState<Axis>('x')
   const [loop, setLoop] = useState(false)
   const [skipSnaps, setSkipSnaps] = useState(true)
+  const [dragFree, setDragFree] = useState<false | true | 'snap'>(false)
+  const [draggable, setDraggable] = useState(true)
+  const [direction, setDirection] = useState<'ltr' | 'rtl'>('ltr')
   const [forceWheelAxis, setForceWheelAxis] = useState<Axis | undefined>()
   const [target, setTarget] = useState<Element | undefined>()
   const [emblaRef, embla] = useEmblaCarousel(
@@ -17,6 +20,9 @@ const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => 
       loop,
       skipSnaps,
       axis,
+      dragFree,
+      draggable,
+      direction,
     },
     [
       WheelGesturesPlugin({
@@ -57,7 +63,7 @@ const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => 
 
   return (
     <>
-      <div style={{ display: 'flex', gap: 16, paddingBottom: 16 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, paddingBottom: 16 }}>
         <label>
           carousel axis:{' '}
           <select value={axis} onChange={(e) => setAxis(e.target.value as Axis)}>
@@ -83,6 +89,29 @@ const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => 
         </label>
 
         <label>
+          drag free:{' '}
+          <select
+            value={String(dragFree)}
+            onChange={(e) => setDragFree(e.target.value === 'snap' ? 'snap' : e.target.value === 'true')}
+          >
+            <option value="false">Off</option>
+            <option value="true">Free</option>
+            <option value="snap">Free with snap</option>
+          </select>
+        </label>
+        <label>
+          mouse/touch drag:{' '}
+          <input type="checkbox" checked={draggable} onChange={(e) => setDraggable(e.target.checked)} />
+        </label>
+        <label>
+          direction:{' '}
+          <select value={direction} onChange={(e) => setDirection(e.target.value as 'ltr' | 'rtl')}>
+            <option value="ltr">LTR</option>
+            <option value="rtl">RTL</option>
+          </select>
+        </label>
+
+        <label>
           target:{' '}
           <select
             value={target ? 'documentElement' : ''}
@@ -93,7 +122,7 @@ const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => 
           </select>
         </label>
       </div>
-      <div className="embla" data-axis={axis}>
+      <div className="embla" data-axis={axis} dir={direction}>
         <div ref={emblaRef} className="embla__viewport">
           <div className="embla__container">
             {React.Children.map(children, (Child, index) => (
@@ -105,7 +134,7 @@ const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => 
         </div>
         <div className="embla__dots">
           {scrollSnaps.map((snap, index) => (
-            <DotButton selected={index === selectedIndex} onClick={() => scrollTo(index)} key={index} />
+            <DotButton index={index} selected={index === selectedIndex} onClick={() => scrollTo(index)} key={index} />
           ))}
         </div>
         <PrevButton onClick={scrollPrev} enabled={prevBtnEnabled} />

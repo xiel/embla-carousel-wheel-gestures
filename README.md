@@ -112,15 +112,22 @@ WheelGesturesPlugin.globalOptions = {
 - Mac OS (Chrome, Firefox, Safari, Edge), Magic Mouse, Magic Trackpad
 - Windows (Chrome, Firefox, Edge), Microsoft Precision Touchpads
 
-#### Legacy Browsers
+### Wheel interaction
 
-If you need to support IE 10 & 11 you might need to install and add extra polyfills:
+Wheel gestures move Embla's engine directly. The plugin retains the drag friction,
+snap thresholds, velocity window, and momentum handoff used by Embla v9. Boundary
+damping follows the carousel axis and direction, including vertical and RTL layouts.
 
-```js
-// Adds support old IE >= 10
-import 'core-js/stable'
-import 'events-polyfill/src/constructors/MouseEvent'
-```
+Wheel input also works with `draggable: false`. Real mouse/touch dragging can take
+over an active wheel gesture. Wheel gestures do not emit `pointerdown`, `pointermove`,
+or `pointerup`, and `scroll` events do not report them as pointer dragging. Use the
+existing `wheelDraggingClass` to distinguish wheel interaction. A MouseEvent
+constructor polyfill is no longer required.
+
+The React demo includes drag-free, direction, mouse/touch dragging, and a second
+carousel control for testing these cases. Small isolated mouse-wheel ticks retain
+the previous snap-back behavior; the separate single-tick issue is tracked in
+[#234](https://github.com/xiel/embla-carousel-wheel-gestures/issues/234).
 
 ## Thanks
 
@@ -129,6 +136,7 @@ Kudos to [David Jerleke](https://github.com/davidjerleke) for creating [Embla Ca
 ## License
 
 MIT.
+
 ## Local development
 
 Use Node 22.12 or newer and Yarn Classic. From this repository:

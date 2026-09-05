@@ -19,229 +19,179 @@ const defaultOptions: WheelGesturesPluginOptions = {
 
 WheelGesturesPlugin.globalOptions = undefined as WheelGesturesPluginType['options'] | undefined
 
-const __DEV__ = process.env.NODE_ENV !== 'production'
-
 export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['options'] = {}): WheelGesturesPluginType {
-  let options: WheelGesturesPluginOptions
   let cleanup = () => {}
 
   function init(embla: EmblaCarouselType, optionsHandler: OptionsHandlerType) {
+    cleanup()
     const { mergeOptions, optionsAtMedia } = optionsHandler
-    const optionsBase = mergeOptions(defaultOptions, WheelGesturesPlugin.globalOptions)
-    const allOptions = mergeOptions(optionsBase, userOptions)
-    options = optionsAtMedia(allOptions)
-
+    const options = optionsAtMedia(
+      mergeOptions(mergeOptions(defaultOptions, WheelGesturesPlugin.globalOptions), userOptions)
+    )
     const engine = embla.internalEngine()
     if (engine.isSsr || !options.active) return
 
     const targetNode = options.target ?? (embla.containerNode().parentNode as Element)
+    const ownerWindow = embla.containerNode().ownerDocument.defaultView!
     const wheelAxis = options.forceWheelAxis ?? engine.options.axis
-    const wheelGestures = WheelGestures({
-      preventWheelAction: wheelAxis,
-      reverseSign: [true, true, false],
-    })
+    const axisIndex = wheelAxis === 'x' ? 0 : 1
+    const wheelGestures = WheelGestures({ preventWheelAction: wheelAxis, reverseSign: [true, true, false] })
+    const { axis, target, location, scrollBody, scrollTarget, scrollTo, indexCurrent, animation } = engine
+    const dragFree = engine.options.dragFree === true || engine.options.dragFree === 'snap'
+    const snap = engine.options.dragFree !== true
+    const logInterval = 170
+    let isStarted = false
+    let blockedWaitUntilGestureEnd = false
+    let overBoundaryAccumulation = 0
+    let viewSize = 0
+    let lastMovement = 0
+    let velocityStartMovement = 0
+    let velocityStartTime = 0
+    let lastMoveTime = 0
 
     function updateSizeRelatedVariables() {
-      scrollBoundaryThreshold = (wheelAxis === 'x' ? engine.containerRect.width : engine.containerRect.height) / 2
+      viewSize = axis.getSize(engine.containerRect)
     }
 
-    const unobserveTargetNode = wheelGestures.observe(targetNode)
-    const offWheel = wheelGestures.on('wheel', handleWheel)
+    // Keep Embla's own rubber band constraint in its dragging mode while the
+    // wheel controls the target, without pretending a mouse pointer is down.
+    const constrain = engine.scrollBounds.constrain
+    const constrainDuringWheel = (pointerDown: boolean) => constrain(pointerDown || isStarted)
+    engine.scrollBounds.constrain = constrainDuringWheel
 
-    let isStarted = false
-    let startEvent: MouseEvent
-    let overBoundaryAccumulation = 0
-    let scrollBoundaryThreshold = 0
-    let blockedWaitUntilGestureEnd = false
-
-    updateSizeRelatedVariables()
-    embla.on('resize', updateSizeRelatedVariables)
-
-    function wheelGestureStarted(state: WheelEventState) {
-      try {
-        startEvent = new MouseEvent('mousedown', state.event)
-        dispatchEvent(startEvent)
-      } catch (e) {
-        // Legacy Browsers like IE 10 & 11 will throw when attempting to create the Event
-        if (__DEV__) {
-          console.warn(
-            'Legacy browser requires events-polyfill (https://github.com/xiel/embla-carousel-wheel-gestures#legacy-browsers)'
-          )
-        }
-        return cleanup()
-      }
-
+    function wheelGestureStarted() {
       isStarted = true
       overBoundaryAccumulation = 0
-      addNativeMouseEventListeners()
-
-      if (options.wheelDraggingClass) {
-        targetNode.classList.add(options.wheelDraggingClass)
-      }
+      lastMovement = velocityStartMovement = 0
+      lastMoveTime = velocityStartTime = ownerWindow.performance.now()
+      scrollBody.useFriction(0).useDuration(0)
+      target.set(location)
+      if (options.wheelDraggingClass) targetNode.classList.add(options.wheelDraggingClass)
     }
 
-    function wheelGestureEnded(state: WheelEventState) {
+    function allowedForce(force: number) {
+      const threshold = Math.min(225, Math.max(50, engine.percentOfView.measure(20)))
+      const baseForce = () => scrollTarget.byDistance(force, snap).distance
+      if (dragFree || Math.abs(force) < threshold) return baseForce()
+      if (engine.options.skipSnaps && scrollTarget.byDistance(0, false).index !== indexCurrent.get()) {
+        return baseForce() * 0.5
+      }
+      const next = indexCurrent.add(-Math.sign(force))
+      return scrollTarget.byIndex(next.get(), 0).distance
+    }
+
+    function wheelGestureEnded() {
+      if (!isStarted) return
       isStarted = false
-      dispatchEvent(createRelativeMouseEvent('mouseup', state))
-      removeNativeMouseEventListeners()
-
-      if (options.wheelDraggingClass) {
-        targetNode.classList.remove(options.wheelDraggingClass)
-      }
+      if (options.wheelDraggingClass) targetNode.classList.remove(options.wheelDraggingClass)
+      const now = ownerWindow.performance.now()
+      const elapsed = now - velocityStartTime
+      const velocity =
+        elapsed && now - lastMoveTime <= logInterval ? (lastMovement - velocityStartMovement) / elapsed : 0
+      const rawForce = (Math.abs(velocity) > 0.1 ? velocity : 0) * (dragFree ? 500 : 300)
+      const force = allowedForce(axis.direction(rawForce))
+      const forceFactor =
+        rawForce && force && Math.abs(rawForce) > Math.abs(force)
+          ? (Math.abs(rawForce) - Math.abs(force)) / Math.abs(rawForce)
+          : 0
+      scrollBody.useDuration((dragFree ? 43 : 25) - 10 * forceFactor)
+      // Embla v9's base drag friction is 0.68 (DragHandler/Engine).
+      scrollBody.useFriction(0.68 + forceFactor / 50)
+      scrollTo.distance(force, snap)
     }
 
-    function addNativeMouseEventListeners() {
-      document.documentElement.addEventListener('mousemove', preventNativeMouseHandler, true)
-      document.documentElement.addEventListener('mouseup', preventNativeMouseHandler, true)
-      document.documentElement.addEventListener('mousedown', preventNativeMouseHandler, true)
+    function atBoundary(delta: number) {
+      if (engine.options.loop) return false
+      const movement = axis.direction(delta)
+      return (movement < 0 && embla.scrollProgress() >= 1) || (movement > 0 && embla.scrollProgress() <= 0)
     }
 
-    function removeNativeMouseEventListeners() {
-      document.documentElement.removeEventListener('mousemove', preventNativeMouseHandler, true)
-      document.documentElement.removeEventListener('mouseup', preventNativeMouseHandler, true)
-      document.documentElement.removeEventListener('mousedown', preventNativeMouseHandler, true)
-    }
-
-    function preventNativeMouseHandler(e: MouseEvent) {
-      if (isStarted && e.isTrusted) {
-        e.stopImmediatePropagation()
+    function move(state: WheelEventState, isAtBoundary: boolean) {
+      let movement = state.axisMovement[axisIndex]
+      if (isAtBoundary && viewSize) {
+        const progress = Math.min(overBoundaryAccumulation / (viewSize / 2), 1)
+        movement -= Math.sign(movement) * overBoundaryAccumulation * (0.25 + progress * 0.5)
       }
-    }
-
-    function createRelativeMouseEvent(type: 'mousedown' | 'mousemove' | 'mouseup', state: WheelEventState) {
-      let moveX, moveY
-
-      if (wheelAxis === engine.options.axis) {
-        ;[moveX, moveY] = state.axisMovement
-      } else {
-        // if emblas axis and the wheelAxis don't match, swap the axes to match the right embla events
-        ;[moveY, moveX] = state.axisMovement
+      if (!engine.options.skipSnaps && !dragFree) {
+        movement = Math.max(-viewSize, Math.min(movement, viewSize))
       }
-
-      const { isAtBoundary } = checkIfAtBoundary(state)
-
-      // Apply progressive rubber band damping when at boundaries
-      if (isAtBoundary) {
-        // Calculate progressive damping factor based on how far over boundary we are
-        const progressRatio = Math.min(overBoundaryAccumulation / scrollBoundaryThreshold, 1)
-        const dampingFactor = 0.25 + progressRatio * 0.5
-        const counterMoveSign = moveX > 0 ? -1 : 1
-        const counterMovement = overBoundaryAccumulation * counterMoveSign
-        const dampingMovement = counterMovement * dampingFactor
-
-        moveX += dampingMovement
-        moveY += dampingMovement
+      const now = ownerWindow.performance.now()
+      const delta = movement - lastMovement
+      if (now - velocityStartTime > logInterval) {
+        velocityStartTime = now
+        velocityStartMovement = movement
       }
-
-      // prevent skipping slides
-      if (!engine.options.skipSnaps && !engine.options.dragFree) {
-        const maxX = engine.containerRect.width
-        const maxY = engine.containerRect.height
-
-        moveX = moveX < 0 ? Math.max(moveX, -maxX) : Math.min(moveX, maxX)
-        moveY = moveY < 0 ? Math.max(moveY, -maxY) : Math.min(moveY, maxY)
-      }
-
-      return new MouseEvent(type, {
-        clientX: startEvent.clientX + moveX,
-        clientY: startEvent.clientY + moveY,
-        screenX: startEvent.screenX + moveX,
-        screenY: startEvent.screenY + moveY,
-        movementX: moveX,
-        movementY: moveY,
-        button: 0,
-        bubbles: true,
-        cancelable: true,
-        composed: true,
-      })
-    }
-
-    function dispatchEvent(event: UIEvent) {
-      embla.containerNode().dispatchEvent(event)
-    }
-
-    function checkIfAtBoundary(state: WheelEventState) {
-      const {
-        axisDelta: [deltaX, deltaY],
-      } = state
-      const scrollProgress = embla.scrollProgress()
-      const canScrollNext = scrollProgress < 1
-      const canScrollPrev = scrollProgress > 0
-      const primaryAxisDelta = wheelAxis === 'x' ? deltaX : deltaY
-      const isScrollingNext = primaryAxisDelta < 0
-      const isScrollingPrev = primaryAxisDelta > 0
-      const isAtBoundary = (isScrollingNext && !canScrollNext) || (isScrollingPrev && !canScrollPrev)
-
-      return {
-        isAtBoundary,
-        primaryAxisDelta,
-      }
-    }
-
-    function isBoundaryThresholdReached(state: WheelEventState) {
-      const { isAtBoundary, primaryAxisDelta } = checkIfAtBoundary(state)
-
-      if (isAtBoundary && !state.isMomentum) {
-        overBoundaryAccumulation += Math.abs(primaryAxisDelta)
-
-        // End gesture if we exceed the threshold
-        if (overBoundaryAccumulation > scrollBoundaryThreshold) {
-          blockedWaitUntilGestureEnd = true
-          wheelGestureEnded(state)
-          return true
-        }
-      } else {
-        // Reset accumulation when we can scroll or when not at boundary
-        overBoundaryAccumulation = 0
-      }
-
-      return false
+      lastMovement = movement
+      lastMoveTime = now
+      scrollBody.useFriction(0.3).useDuration(0.75)
+      target.add(axis.direction(delta))
+      animation.start()
     }
 
     function handleWheel(state: WheelEventState) {
-      const {
-        axisDelta: [deltaX, deltaY],
-      } = state
-      const primaryAxisDelta = wheelAxis === 'x' ? deltaX : deltaY
-      const crossAxisDelta = wheelAxis === 'x' ? deltaY : deltaX
-      const isRelease = state.isMomentum && state.previous && !state.previous.isMomentum
-      const isEndingOrRelease = (state.isEnding && !state.isMomentum) || isRelease
-      const primaryAxisDeltaIsDominant = Math.abs(primaryAxisDelta) > Math.abs(crossAxisDelta)
-
-      if (primaryAxisDeltaIsDominant && !isStarted && !state.isMomentum && !blockedWaitUntilGestureEnd) {
-        wheelGestureStarted(state)
-      }
-
-      if (blockedWaitUntilGestureEnd && state.isEnding) {
+      if (state.isEnding) {
+        wheelGestureEnded()
         blockedWaitUntilGestureEnd = false
+        return
       }
-
+      if (engine.dragHandler.pointerDown()) {
+        blockedWaitUntilGestureEnd = true
+        return
+      }
+      if (blockedWaitUntilGestureEnd) return
+      if (state.isMomentum) {
+        wheelGestureEnded()
+        return
+      }
+      const delta = state.axisDelta[axisIndex]
+      const crossDelta = state.axisDelta[axisIndex === 0 ? 1 : 0]
+      if (!isStarted && Math.abs(delta) > Math.abs(crossDelta)) wheelGestureStarted()
       if (!isStarted) return
 
-      if (isBoundaryThresholdReached(state)) return
-
-      if (isEndingOrRelease) {
-        wheelGestureEnded(state)
-      } else {
-        dispatchEvent(createRelativeMouseEvent('mousemove', state))
+      const isAtBoundary = atBoundary(delta)
+      overBoundaryAccumulation = isAtBoundary ? overBoundaryAccumulation + Math.abs(delta) : 0
+      if (isAtBoundary && overBoundaryAccumulation > viewSize / 2) {
+        blockedWaitUntilGestureEnd = true
+        wheelGestureEnded()
+        return
       }
+      move(state, isAtBoundary)
     }
 
+    function onPointerDown() {
+      if (!isStarted) return
+      blockedWaitUntilGestureEnd = true
+      wheelGestureEnded()
+    }
+
+    updateSizeRelatedVariables()
+    embla.on('resize', updateSizeRelatedVariables)
+    embla.on('pointerdown', onPointerDown)
+    const unobserve = wheelGestures.observe(targetNode)
+    const offWheel = wheelGestures.on('wheel', handleWheel)
+
     cleanup = () => {
-      unobserveTargetNode()
+      if (isStarted) {
+        isStarted = false
+        target.set(location)
+        scrollBody.useBaseDuration().useBaseFriction()
+      }
+      if (options.wheelDraggingClass) targetNode.classList.remove(options.wheelDraggingClass)
+      unobserve()
       offWheel()
       embla.off('resize', updateSizeRelatedVariables)
-      removeNativeMouseEventListeners()
+      embla.off('pointerdown', onPointerDown)
+      if (engine.scrollBounds.constrain === constrainDuringWheel) engine.scrollBounds.constrain = constrain
+      cleanup = () => {}
     }
   }
 
-  const self: WheelGesturesPluginType = {
+  return {
     name: 'wheelGestures',
     options: userOptions,
     init,
     destroy: () => cleanup(),
   }
-  return self
 }
 
 declare module 'embla-carousel' {

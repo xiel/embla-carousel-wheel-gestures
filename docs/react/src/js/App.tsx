@@ -4,6 +4,7 @@ import EmblaCarousel from './EmblaCarousel'
 
 const App = () => {
   const [isHydrated, setIsHydrated] = useState(false)
+  const [showSecond, setShowSecond] = useState(false)
 
   useEffect(() => {
     setIsHydrated(true)
@@ -21,6 +22,17 @@ const App = () => {
         <div />
         <div />
       </EmblaCarousel>
+      <label style={{ display: 'block', marginTop: 64, marginBottom: 24 }}>
+        <input type="checkbox" checked={showSecond} onChange={(event) => setShowSecond(event.target.checked)} />
+        Show a second carousel to test independent gestures
+      </label>
+      {showSecond && (
+        <EmblaCarousel>
+          {Array.from({ length: 5 }, (_, index) => (
+            <div key={index} />
+          ))}
+        </EmblaCarousel>
+      )}
     </div>
   )
 }
