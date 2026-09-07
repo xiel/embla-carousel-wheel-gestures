@@ -129,3 +129,30 @@ Kudos to [David Jerleke](https://github.com/davidjerleke) for creating [Embla Ca
 ## License
 
 MIT.
+## Local development
+
+Use Node 22.12 or newer and Yarn Classic. From this repository:
+
+```sh
+yarn install
+yarn build
+yarn start          # React SSR demo at http://localhost:5173
+yarn start:vanilla  # Vanilla, UMD and Shadow DOM demos at http://localhost:1234
+yarn demo:local     # React demo using all three sibling source checkouts
+```
+
+The React demo always loads this workspace's plugin source, with hot reload.
+Normally it uses the installed Embla and wheel-gestures packages.
+`demo:local` also resolves `../wheel-gestures/src` and the core, React, and
+reactive-utils sources in `../embla-carousel/packages`. Keep those sibling
+directories alongside this repository. No global `yarn link` state is needed;
+React is deduplicated across the source checkouts. The UMD demo uses the locally
+built plugin and installed Embla bundle.
+
+Embla core and the React wrapper are pinned to `9.0.0-rc03`, the newest published
+v9 prerelease. The npm `latest` tag still points to stable `8.6.0`.
+
+Run `yarn test --runInBand`, `yarn lint`, and `yarn audit:dependencies` to check
+the library, all demo types, and every dependency in the Yarn lockfile. The
+audit includes workspace development dependencies and fails on high/critical
+advisories. The Axios resolution keeps bundlewatch on the patched 0.x release.

@@ -2,16 +2,15 @@ const fs = require('fs')
 const http = require('http')
 const path = require('path')
 
-const { createServer: createViteServer } = require('vite')
-
 const root = __dirname
 const port = Number(process.env.PORT || 5173)
 
 async function start() {
+  const { createServer: createViteServer } = await import('vite')
   const vite = await createViteServer({
     root,
     server: {
-      middlewareMode: 'ssr',
+      middlewareMode: true,
     },
     appType: 'custom',
   })
@@ -40,7 +39,7 @@ async function start() {
     })
   })
 
-  server.listen(port, () => {
+  server.listen(port, '127.0.0.1', () => {
     console.log(`React SSR demo running at http://localhost:${port}`)
   })
 }

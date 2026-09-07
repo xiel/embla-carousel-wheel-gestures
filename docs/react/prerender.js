@@ -5,7 +5,7 @@ const { pathToFileURL } = require('url')
 async function prerender() {
   const distDir = path.resolve(__dirname, 'dist')
   const templatePath = path.join(distDir, 'index.html')
-  const serverEntryPath = path.join(distDir, 'server', 'entry-server.js')
+  const serverEntryPath = path.join(distDir, 'server', 'entry-server.mjs')
 
   const template = fs.readFileSync(templatePath, 'utf8')
   const serverModule = await import(pathToFileURL(serverEntryPath).href)

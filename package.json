@@ -9,15 +9,30 @@
   "scripts": {
     "build": "yarn workspaces run build && yarn move",
     "test": "yarn workspace embla-carousel-wheel-gestures test",
-    "lint": "yarn workspaces run lint",
-    "move": "rm -rf public; mkdir public; cp docs/react/dist/index.html docs/react/dist/react.html; cp -R docs/react/dist/* public/; cp -R docs/vanilla/dist/* public/"
+    "lint": "eslint embla-carousel-wheel-gestures/src embla-carousel-wheel-gestures/test docs/*/src && yarn workspaces run type-check",
+    "move": "rm -rf public; mkdir public; cp docs/react/dist/index.html docs/react/dist/react.html; cp -R docs/react/dist/* public/; cp -R docs/vanilla/dist/* public/",
+    "start": "yarn workspace react-demo start",
+    "start:vanilla": "yarn workspace vanilla-demo start",
+    "demo:local": "EMBLA_LOCAL=1 yarn start",
+    "audit:dependencies": "node scripts/audit-dependencies.cjs"
   },
   "description": "workspace for embla-carousel-wheel-gestures",
   "repository": "git@github.com:xiel/embla-carousel-wheel-gestures.git",
   "author": "Felix Leupold <felix@xiel.de>",
   "license": "MIT",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "eslint": "^9.39.0",
+    "typescript-eslint": "^8.0.0",
+    "globals": "^16.0.0",
+    "@yarnpkg/lockfile": "^1.1.0",
+    "typescript": "~5.9.3",
+    "embla-carousel": "9.0.0-rc03"
+  },
   "resolutions": {
-    "embla-carousel": "9.0.0-rc01",
-    "embla-carousel-react": "9.0.0-rc01"
+    "**/axios": "^0.33.0"
   }
 }
