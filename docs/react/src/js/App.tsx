@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
 import EmblaCarousel from './EmblaCarousel'
+import MomentumDebug from './MomentumDebug'
 
 const App = () => {
   const [isHydrated, setIsHydrated] = useState(false)
@@ -15,6 +16,7 @@ const App = () => {
       <p style={{ marginBottom: 16 }}>
         <strong>Render mode:</strong> {isHydrated ? 'Hydrated on the client' : 'Server-rendered markup'}
       </p>
+      <MomentumDebug />
       <EmblaCarousel>
         <div />
         <div />
