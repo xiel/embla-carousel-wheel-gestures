@@ -15,6 +15,7 @@ export default ['development', 'production'].flatMap((environment) =>
       file: `dist/${name}.${format}${format === 'esm' ? '' : `.${environment}`}${environment === 'production' && format === 'cjs' ? '.min' : ''}.js`
         .replace('.umd.production', '.umd'),
       format,
+      interop: 'auto',
       name: 'EmblaCarouselWheelGestures',
       exports: format === 'umd' ? 'default' : 'named',
       sourcemap: true,
