@@ -5,12 +5,13 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { DotButton, NextButton, PrevButton } from './EmblaCarouselButtons'
 
 type Axis = 'x' | 'y'
+type WheelAxis = Axis | 'both'
 
 const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => {
   const [axis, setAxis] = useState<Axis>('x')
   const [loop, setLoop] = useState(false)
   const [skipSnaps, setSkipSnaps] = useState(true)
-  const [forceWheelAxis, setForceWheelAxis] = useState<Axis | undefined>()
+  const [forceWheelAxis, setForceWheelAxis] = useState<WheelAxis | undefined>()
   const [target, setTarget] = useState<Element | undefined>()
   const [emblaRef, embla] = useEmblaCarousel(
     {
@@ -68,9 +69,10 @@ const EmblaCarouselComponent = ({ children }: { children: React.ReactNode }) => 
 
         <label>
           wheel axis{forceWheelAxis ? ' (forced)' : ''}:{' '}
-          <select value={forceWheelAxis || axis} onChange={(e) => setForceWheelAxis(e.target.value as Axis)}>
+          <select value={forceWheelAxis || axis} onChange={(e) => setForceWheelAxis(e.target.value as WheelAxis)}>
             <option value="x">X</option>
             <option value="y">Y</option>
+            <option value="both">Both</option>
           </select>
         </label>
 
