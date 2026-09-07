@@ -97,6 +97,21 @@ Force an axis on which to listen for wheel events. Useful if you want to slide h
 
 Specify the element that should be observed for wheel events.
 
+
+### wheelStep
+**Type**: number<br/>
+**Default**: undefined
+
+Advance exactly one slide for every `wheelStep` pixels of accumulated wheel movement, instead of mapping the wheel 1:1 onto a drag. This makes a short scroll snap to the next slide — similar to a classic mouse-wheel carousel — which feels much snappier with a notched mouse wheel, especially on vertical carousels. Lower values are snappier (fewer pixels per slide), higher values calmer.
+
+When unset (the default) the original drag-style behaviour is kept, so this is fully backwards compatible.
+
+```js
+const embla = EmblaCarousel(emblaNode, options, [WheelGesturesPlugin({ wheelStep: 40 })])
+```
+
+The carousel advances at most one slide until the slide animation settles, so a single flick never overshoots; any leftover scroll distance carries over to the next step. At the edges of a non-looping carousel the wheel releases back to the page.
+
 ## Global Options
 
 You can also set global options that will be applied to all instances. This allows for overriding the default plugin options with your own:
