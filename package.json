@@ -14,7 +14,8 @@
     "start": "yarn workspace react-demo start",
     "start:vanilla": "yarn workspace vanilla-demo start",
     "demo:local": "EMBLA_LOCAL=1 yarn start",
-    "audit:dependencies": "node scripts/audit-dependencies.cjs"
+    "audit:dependencies": "node scripts/audit-dependencies.cjs",
+    "test:package": "node scripts/test-package.cjs"
   },
   "description": "workspace for embla-carousel-wheel-gestures",
   "repository": "git@github.com:xiel/embla-carousel-wheel-gestures.git",
@@ -30,7 +31,8 @@
     "globals": "^16.0.0",
     "@yarnpkg/lockfile": "^1.1.0",
     "typescript": "~5.9.3",
-    "embla-carousel": "9.0.0-rc03"
+    "embla-carousel": "9.0.0-rc03",
+    "jsdom": "^26.1.0"
   },
   "resolutions": {
     "**/axios": "^0.33.0"

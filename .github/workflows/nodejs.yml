@@ -26,6 +26,7 @@ jobs:
           yarn
           yarn build
           yarn test
+          yarn test:package
           yarn lint
       - name: bundlewatch
         run: |

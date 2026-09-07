@@ -14,10 +14,10 @@
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.3",
     "embla-carousel-react": "9.0.0-rc03",
-    "embla-carousel-wheel-gestures": "9.0.0-rc01",
+    "embla-carousel-wheel-gestures": "9.0.0-rc02",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "wheel-gestures": "^2.2.5"
+    "wheel-gestures": "^2.3.0"
   },
   "devDependencies": {
     "vite": "^8.2.2",
