@@ -502,6 +502,98 @@ describe('WheelGesturesPlugin', () => {
     })
   })
 
+  describe('Boundary Damping', () => {
+    function initPluginWithAxis(axis: string) {
+      mockEngine.options.axis = axis
+
+      const WheelGestures = require('wheel-gestures').default
+      const mockWheelGestures = WheelGestures()
+
+      WheelGesturesPlugin().init(mockEmbla, mockOptionsHandler)
+
+      return mockWheelGestures.on.mock.calls.find((call: any) => call[0] === 'wheel')[1]
+    }
+
+    it('should damp the movement of a vertical carousel at the start boundary', () => {
+      const wheelHandler = initPluginWithAxis('y')
+
+      const startState: WheelEventState = {
+        axisDelta: [0, 20],
+        axisMovement: [0, 20],
+        isMomentum: false,
+        isEnding: false,
+        previous: null,
+        event: new WheelEvent('wheel'),
+      } as any
+
+      wheelHandler(startState)
+      jest.clearAllMocks()
+
+      // no previous slides left, so scrolling further back is over the boundary
+      mockEmbla.scrollProgress.mockReturnValue(0)
+
+      const boundaryState: WheelEventState = {
+        axisDelta: [0, 60],
+        axisMovement: [0, 60],
+        isMomentum: false,
+        isEnding: false,
+        previous: startState,
+        event: new WheelEvent('wheel'),
+      } as any
+
+      wheelHandler(boundaryState)
+
+      // the threshold is half the container height (300), so being 60px over it
+      // damps by 60 * (0.25 + 0.2 * 0.5) = 21, against the movement
+      expect(MouseEvent).toHaveBeenCalledWith(
+        'mousemove',
+        expect.objectContaining({
+          movementX: 0,
+          movementY: 39,
+        })
+      )
+    })
+
+    it('should not damp the cross axis', () => {
+      const wheelHandler = initPluginWithAxis('x')
+
+      const startState: WheelEventState = {
+        axisDelta: [20, 0],
+        axisMovement: [20, 0],
+        isMomentum: false,
+        isEnding: false,
+        previous: null,
+        event: new WheelEvent('wheel'),
+      } as any
+
+      wheelHandler(startState)
+      jest.clearAllMocks()
+
+      mockEmbla.scrollProgress.mockReturnValue(0)
+
+      const boundaryState: WheelEventState = {
+        axisDelta: [80, 0],
+        axisMovement: [100, 5],
+        isMomentum: false,
+        isEnding: false,
+        previous: startState,
+        event: new WheelEvent('wheel'),
+      } as any
+
+      wheelHandler(boundaryState)
+
+      // the threshold is half the container width (400), so being 80px over it damps
+      // the scroll axis by 80 * (0.25 + 0.2 * 0.5) = 28 and leaves the cross axis alone
+      expect(MouseEvent).toHaveBeenCalledWith(
+        'mousemove',
+        expect.objectContaining({
+          movementX: 72,
+          movementY: 5,
+        })
+      )
+    })
+  })
+
   describe('Mouse Event Creation', () => {
     let plugin: any
     let wheelHandler: (state: WheelEventState) => void

@@ -125,12 +125,18 @@ export function WheelGesturesPlugin(userOptions: WheelGesturesPluginType['option
         // Calculate progressive damping factor based on how far over boundary we are
         const progressRatio = Math.min(overBoundaryAccumulation / scrollBoundaryThreshold, 1)
         const dampingFactor = 0.25 + progressRatio * 0.5
-        const counterMoveSign = moveX > 0 ? -1 : 1
+        // a vertical carousel scrolls on moveY, so the damping cannot always use moveX
+        const isVerticalCarousel = engine.options.axis === 'y'
+        const scrollAxisMovement = isVerticalCarousel ? moveY : moveX
+        const counterMoveSign = scrollAxisMovement > 0 ? -1 : 1
         const counterMovement = overBoundaryAccumulation * counterMoveSign
         const dampingMovement = counterMovement * dampingFactor
 
-        moveX += dampingMovement
-        moveY += dampingMovement
+        if (isVerticalCarousel) {
+          moveY += dampingMovement
+        } else {
+          moveX += dampingMovement
+        }
       }
 
       // prevent skipping slides
